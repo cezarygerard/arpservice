@@ -6,7 +6,7 @@ using namespace std;
 
 namespace utils
 {
-
+/*
 	struct IPAddress
 	{
 		unsigned char ip[4];
@@ -16,7 +16,7 @@ namespace utils
 	{
 		unsigned char m[6];
 	};
-
+*/
 	string iptos(u_long in);
 	string iptos(IPAddress in);
 	void ifprint(pcap_if_t *d);
@@ -53,12 +53,10 @@ namespace utils
 		for (int i=1; i<inter; i++)
 			d=d->next;
 
-//	  pcap_freealldevs(alldevs);
-	  
-	  return d;
+		return d;
 	}
 
-	static void PrintBytes(unsigned char Data[], int size)
+	void PrintBytes(unsigned char Data[], int size)
 	{
 		for(int i=0; i<size; i++)
 			printf("%02X",Data[i]);
@@ -158,7 +156,8 @@ namespace utils
 		for (int i = 0;i<4; i++)
 		{	
 			ip.ip[i] = p[i];
-		}	
+		}
+
 		return ip;
 	}
 

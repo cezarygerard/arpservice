@@ -55,6 +55,18 @@ using namespace std;
 
 namespace utils
 {
+	const int ARP_REQ_SIZE = 60;
+	
+	struct IPAddress
+	{
+		unsigned char ip[4];
+	};
+
+	struct MacAdress
+	{
+		unsigned char m[6];
+	};
+
 	struct IPAddress;
 	struct MacAdress;
 
