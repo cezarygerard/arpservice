@@ -35,17 +35,18 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-
-#define HAVE_REMOTE //bez tego kilka rzeczy nie dziala
-//#include <RpcDce.h>
+#define HAVE_REMOTE 
 #include <stdio.h>
 #include "pcap.h"
+#include <iostream>
 #include <winsock.h>
 #include <Windows.h>
 #include <Iphlpapi.h>
 #include <Assert.h>
 #include <string>
 #include <sstream>
+#include "utils.hpp"
+
 #pragma comment(lib, "iphlpapi.lib")
 
 using namespace std;
@@ -72,6 +73,7 @@ namespace utils
 
 	pcap_if_t * init()
 	{
+
 	  pcap_if_t *alldevs;
 	  pcap_if_t *d;
 	  char errbuf[PCAP_ERRBUF_SIZE+1];
