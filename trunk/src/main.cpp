@@ -8,6 +8,7 @@ using namespace std;
 int main(int argc, char *argv[])
 {
 	CNetworkAdapter::getInstance()->init(utils::init());
+	CNetworkAdapter::getInstance()->open();
 	CNetworkAdapter::getInstance()->sendARPs();
 	system("pause");
 }

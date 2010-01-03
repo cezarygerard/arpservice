@@ -3,7 +3,7 @@
 #define CNETWORK_ADAPTER_H
 
 #define HAVE_REMOTE 
-#include "pcap.h"
+#include <pcap.h>
 #include "utils.hpp" 
 #include "CSingleton.hpp"
 
