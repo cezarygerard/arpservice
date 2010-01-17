@@ -93,6 +93,8 @@ namespace utils
 	//@param utils::IPAddress 
 	MacAdress GetMACaddress(IPAddress ip);
 
+//	bool operator<(const MacAdress& mac1, const MacAdress& mac2 );
+
 }
 
 #endif 

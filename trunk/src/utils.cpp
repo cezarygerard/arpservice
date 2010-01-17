@@ -173,4 +173,9 @@ namespace utils
 		s = out.str();
 		return s;
 	}
+
+	bool operator<(const MacAdress& mac1, const MacAdress& mac2 )
+	{
+		return true;
+	}
 }
