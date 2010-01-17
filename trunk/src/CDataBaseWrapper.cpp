@@ -2,14 +2,14 @@
 
 CDataBaseWrapper::CDataBaseWrapper()
 {
-	/*
-	if (sqlite3_open("../sqlite/ARPrecord.sqlite", &database) != SQLITE_OK) 
+	
+	if (sqlite3_open("../sqlite/ARPrecord.sqlite", &database) == SQLITE_OK) 
 	{
 		cout<<"CDataBaseWrapper::CDataBaseWrapper() udalo sie poloczyc z baza"<<endl;
 	}
 	else
 		cout<<"CDataBaseWrapper::CDataBaseWrapper() nie!!!! udalo sie poloczyc z baza"<<endl;
-		*/
+		
 }
 
 void CDataBaseWrapper::handleReceived()
