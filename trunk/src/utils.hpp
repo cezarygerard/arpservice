@@ -46,7 +46,7 @@
 #include <string>
 #include <sstream>
 #include <iostream>
-#include "utils.hpp"
+#include <iomanip>
 
 #pragma comment(lib, "iphlpapi.lib")
 
@@ -76,6 +76,8 @@ namespace utils
 
 	//zmiania IP ze struktury utils::IPAddress na string
 	string iptos(IPAddress in);
+	
+	string macToS(MacAdress in);
 
 	//wypisanie informaqcji o danym interfejsie, uzywane w utils::init()
 	void ifprint(pcap_if_t *d);

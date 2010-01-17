@@ -1,5 +1,18 @@
 #include "CDataBaseWrapper.hpp"
 
+
+bool lessMAC::operator()(const MacAdress& m1, const MacAdress& m2)const
+{
+	for(int i = 0; i<6; i++)
+	{
+		if(m1.m[i] < m2.m[i])
+			return true;
+		if(m1.m[i] > m2.m[i])
+			return false;
+	}	
+	return false;
+}
+
 CDataBaseWrapper::CDataBaseWrapper()
 {
 	
@@ -11,7 +24,10 @@ CDataBaseWrapper::CDataBaseWrapper()
 		cout<<"CDataBaseWrapper::CDataBaseWrapper() nie!!!! udalo sie poloczyc z baza"<<endl;
 		
 }
-
+CDataBaseWrapper::~CDataBaseWrapper()
+{
+	sqlite3_close(database);
+}
 void CDataBaseWrapper::handleReceived()
 {
 	boost::mutex::scoped_lock scoped_lock(mutex_);
@@ -53,20 +69,22 @@ void CDataBaseWrapper::handleReceived()
 	}
 }
 
-void CDataBaseWrapper::enqueReceived(ActiveHost& recv)
+void CDataBaseWrapper::enqueReceived(ActiveHost& host)
 {
 	boost::mutex::scoped_lock scoped_lock(mutex_);
-	received_.push(recv);
+	received_.push(host);
 }
 
-bool lessMAC::operator()(const MacAdress& m1, const MacAdress& m2)const
+void CDataBaseWrapper::saveHostToDB(ActiveHost& host)
 {
-	for(int i = 0; i<6; i++)
-	{
-		if(m1.m[i] < m2.m[i])
-			return true;
-		if(m1.m[i] > m2.m[i])
-			return false;
-	}	
-	return false;
+	stringstream query;
+	sqlite3_stmt *statement;
+	query<<"insert into arprecord (mac,ip,start,stop) values ('"<<utils::macToS(host.mac)<<",'"
+		<<utils::iptos(host.ip)<<",'"<<host.start<<",'"<<host.stop<<"');";
+			cout<<query.str();
+			//		1234','456','sd','ww');"<<;
+		if (sqlite3_prepare_v2(database,query.str().c_str(),-1,&statement, NULL) == SQLITE_OK)
+		
+		cout<<"chyba sie udalo!!"<<endl;
+
 }

@@ -34,11 +34,16 @@ class CDataBaseWrapper : public CSingleton<CDataBaseWrapper>
 public:
 
 	void handleReceived();
-	void enqueReceived(ActiveHost& recv);
+	void enqueReceived(ActiveHost& host);
+	void saveHostToDB(ActiveHost& host);
 
 private:
 
 	CDataBaseWrapper();
+	
+	~CDataBaseWrapper();
+
+	
 
 	queue <ActiveHost> received_;
 

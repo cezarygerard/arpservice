@@ -18,7 +18,7 @@ public:
 	void init(pcap_if_t *d);
 	void open();
 	void sendARPs();
-
+	
 private:
 	utils::IPAddress ip_;
 	utils::IPAddress netMask_;

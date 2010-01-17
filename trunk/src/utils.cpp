@@ -174,6 +174,19 @@ namespace utils
 		return s;
 	}
 
+	string macToS(MacAdress in)
+	{
+		string s;
+		stringstream out;
+
+		for (int i = 0;i<6; i++)
+		{
+			out << setw(2)<< setfill('0')<<hex <<(int)in.m[i];
+		}
+		s = out.str();
+		return s;
+	}
+
 	bool operator<(const MacAdress& mac1, const MacAdress& mac2 )
 	{
 		return true;
@@ -208,10 +221,11 @@ namespace utils
 		   now->tm_yday,
 		   now->tm_isdst
 */
+
 		stringstream out;
 		out<<lpSystemTime.wYear<<"-";
 		if(lpSystemTime.wMonth<10)
-			out<<"0";
+			out<<"0"; //mozna bylo uzyc setw(n)
 		out<<lpSystemTime.wMonth<<"-";
 		if(lpSystemTime.wDay<10)
 			out<<"0";
