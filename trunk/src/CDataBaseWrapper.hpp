@@ -9,6 +9,12 @@
 #include "CSingleton.hpp"
 #include <map>
 #include "ActiveHost.hpp"
+#include <boost/thread.hpp>
+#include <boost/thread/mutex.hpp>
+#include <queue>
+#include "../sqlite/sqlite3.h"
+//#include "../sqlite/sqlite3ext.h"
+//#include "sqlite3.h"
 
 using namespace std;
 using namespace utils;
@@ -25,12 +31,22 @@ class CDataBaseWrapper : public CSingleton<CDataBaseWrapper>
 {
 	friend CSingleton<CDataBaseWrapper>;
 
-	void handleReceived(ActiveHost& recv);
+public:
+
+	void handleReceived();
+	void enqueReceived(ActiveHost& recv);
 
 private:
-	CDataBaseWrapper();
-	std::map<utils::MacAdress,ActiveHost, lessMAC> activeHosts;
 
+	CDataBaseWrapper();
+
+	queue <ActiveHost> received_;
+
+	std::map<utils::MacAdress,ActiveHost, lessMAC> activeHosts_;
+
+	boost::mutex mutex_;
+
+	sqlite3 * database;
 };
 
 

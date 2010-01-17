@@ -56,13 +56,13 @@ namespace utils
 			return d;
 	}
 
-	void PrintBytes(unsigned char Data[], int size)
+	void printBytes(unsigned char Data[], int size)
 	{
 		for(int i=0; i<size; i++)
 			printf("%02X",Data[i]);
 	}
 
-	MacAdress GetMACaddress(IPAddress ip)
+	MacAdress getMACaddress(IPAddress ip)
 	{
 		IP_ADAPTER_INFO AdapterInfo[16];			// Allocate information for up to 16 NICs
 		DWORD dwBufLen = sizeof(AdapterInfo);		// Save the memory size of buffer
@@ -178,4 +178,58 @@ namespace utils
 	{
 		return true;
 	}
+
+	string getTime()
+	{
+		//funkcje z winapi
+		SYSTEMTIME lpSystemTime = SYSTEMTIME();// = NULL;
+		GetLocalTime(&lpSystemTime);
+		
+
+//		time_t timeInSeconds = time(NULL);
+//		tm* now = localtime( &timeInSeconds );//prawdopodobnie dla linucha lepsza jest localtime_s
+		/*	printf(
+		  "tm_sec:   %d\n"
+		  "tm_min:   %d\n"
+		  "tm_hour:  %d\n"
+		  "tm_mday:  %d\n"
+		  "tm_mon:   %d\n"
+		  "tm_year:  %d\n"
+		  "tm_wday:  %d\n"
+		  "tm_yday:  %d\n"
+		  "tm_isdst: %d\n",
+		   now->tm_sec,
+		   now->tm_min,
+		   now->tm_hour,
+		   now->tm_mday,
+		   now->tm_mon,
+		   now->tm_year,
+		   now->tm_wday,
+		   now->tm_yday,
+		   now->tm_isdst
+*/
+		stringstream out;
+		out<<lpSystemTime.wYear<<"-";
+		if(lpSystemTime.wMonth<10)
+			out<<"0";
+		out<<lpSystemTime.wMonth<<"-";
+		if(lpSystemTime.wDay<10)
+			out<<"0";
+		out<<lpSystemTime.wDay<<"-";
+		if(lpSystemTime.wHour<10)
+			out<<"0";
+		out<<lpSystemTime.wHour<<"-";
+		if(lpSystemTime.wMinute<10)
+			out<<"0";
+		out<<lpSystemTime.wMinute<<"-";
+		if(lpSystemTime.wSecond<10)
+			out<<"0";
+		out<<lpSystemTime.wSecond;
+		
+		
+		//		out<<  now->tm_year<<"-"<<now->tm_mon<<"-"<< now->tm_mday<<"-"<< now->tm_hour<<"-"<< now->tm_min<<"-"<< now->tm_sec<<endl;
+	//	string s = out.str();
+		return out.str();
+	}
+
 }

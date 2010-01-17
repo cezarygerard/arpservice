@@ -45,6 +45,7 @@
 #include <Assert.h>
 #include <string>
 #include <sstream>
+#include <iostream>
 #include "utils.hpp"
 
 #pragma comment(lib, "iphlpapi.lib")
@@ -86,13 +87,14 @@ namespace utils
 	pcap_if_t * init();
 	
 	//wypisuje na standardowe wyjscie pierwsze size bajtow z tablicy data
-	void PrintBytes(unsigned char data[], int size);
+	void printBytes(unsigned char data[], int size);
 	
 	//zwraca MAC dla interfejsu o podanym IP
 	//@return utils::MacAdress
 	//@param utils::IPAddress 
-	MacAdress GetMACaddress(IPAddress ip);
+	MacAdress getMACaddress(IPAddress ip);
 
+	string getTime();
 //	bool operator<(const MacAdress& mac1, const MacAdress& mac2 );
 
 }

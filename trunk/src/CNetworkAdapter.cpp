@@ -39,7 +39,7 @@ void CNetworkAdapter::init(pcap_if_t *d)
 					break; 
 			}
 		}
-		mac_=utils::GetMACaddress(ip_);
+		mac_=utils::getMACaddress(ip_);
 	}
 }
 
@@ -123,8 +123,8 @@ void CNetworkAdapter::sendARPs()
 	arp_req[36]=0x00;
 	arp_req[37]=0x00;
 
-	while(1)
-	{	
+//	while(1)
+//	{	
 		//target ip:
 		arp_req[38]=ip_.ip[0] & netMask_.ip[0];
 		arp_req[39]=ip_.ip[1] & netMask_.ip[1];
@@ -162,8 +162,8 @@ void CNetworkAdapter::sendARPs()
 			}
 			o1++;
 		}
-		Sleep(60*1000);
-	}
+	//	Sleep(60*1000);
+//	}
 }
 
 
