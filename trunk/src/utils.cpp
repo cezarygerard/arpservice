@@ -25,35 +25,35 @@ namespace utils
 	pcap_if_t * init()
 	{
 
-	  pcap_if_t *alldevs;
-	  pcap_if_t *d;
-	  char errbuf[PCAP_ERRBUF_SIZE+1];
-	  char source[PCAP_ERRBUF_SIZE+1];
-	
-	  strcpy_s( source, "rpcap://");
-	  source[PCAP_ERRBUF_SIZE] = '\0';
+		  pcap_if_t *alldevs;
+		  pcap_if_t *d;
+		  char errbuf[PCAP_ERRBUF_SIZE+1];
+		  char source[PCAP_ERRBUF_SIZE+1];
+		
+		  strcpy_s( source, "rpcap://");
+		  source[PCAP_ERRBUF_SIZE] = '\0';
 
-	  /* Retrieve the interfaces list */
-	  if (pcap_findalldevs_ex(source, NULL, &alldevs, errbuf) == -1)
-	  {
-		fprintf(stderr,"Error in pcap_findalldevs: %s\n",errbuf);
-		exit(1);
-	  }
+		  /* Retrieve the interfaces list */
+		  if (pcap_findalldevs_ex(source, NULL, &alldevs, errbuf) == -1)
+		  {
+			fprintf(stderr,"Error in pcap_findalldevs: %s\n",errbuf);
+			exit(1);
+		  }
 
-	  /* Scan the list printing every entry */
-	  for(d=alldevs;d;d=d->next)
-	  {
-		ifprint(d);
-	  }
-	
-		int inter;
-		cout<<"podaj numwer interfejsu ktory chcesz uzyc\n>";
-		cin>>inter;
-		d=alldevs;
-		for (int i=1; i<inter; i++)
-			d=d->next;
+		  /* Scan the list printing every entry */
+		  for(d=alldevs;d;d=d->next)
+		  {
+			ifprint(d);
+		  }
+		
+			int inter;
+			cout<<"podaj numwer interfejsu ktory chcesz uzyc\n>";
+			cin>>inter;
+			d=alldevs;
+			for (int i=1; i<inter; i++)
+				d=d->next;
 
-		return d;
+			return d;
 	}
 
 	void PrintBytes(unsigned char Data[], int size)

@@ -59,6 +59,10 @@ void CNetworkAdapter::open()
 			fprintf(stderr,"\nUnable to open the adapter. It is not supported by WinPcap\n");
 		   //return -2;
 		}
+
+	   /* start the capture */
+	  //  pcap_loop(fp_, 0, packet_handler, NULL);
+
 	}
 }
 
@@ -161,3 +165,5 @@ void CNetworkAdapter::sendARPs()
 		Sleep(60*1000);
 	}
 }
+
+

@@ -55,6 +55,7 @@ using namespace std;
 
 namespace utils
 {
+	//rozmiar pakietu ARP request
 	const int ARP_REQ_SIZE = 60;
 	
 	struct IPAddress
@@ -67,16 +68,29 @@ namespace utils
 		unsigned char m[6];
 	};
 
-	struct IPAddress;
-	struct MacAdress;
-
+//	struct IPAddress;
+//	struct MacAdress;
+	//zmiania IP z long int na string
 	string iptos(u_long in);
+
+	//zmiania IP ze struktury utils::IPAddress na string
 	string iptos(IPAddress in);
+
+	//wypisanie informaqcji o danym interfejsie, uzywane w utils::init()
 	void ifprint(pcap_if_t *d);
+	
+	//zmiania IP z long int na utils::IPAddress 
 	IPAddress iptoIP(u_long in);
 
+	///inicjalizacja programu - wypisanie listy interfejsow, zaczytanie ktory interfejs ma byc uzyty
 	pcap_if_t * init();
-	void PrintBytes(unsigned char Data[], int size);
+	
+	//wypisuje na standardowe wyjscie pierwsze size bajtow z tablicy data
+	void PrintBytes(unsigned char data[], int size);
+	
+	//zwraca MAC dla interfejsu o podanym IP
+	//@return utils::MacAdress
+	//@param utils::IPAddress 
 	MacAdress GetMACaddress(IPAddress ip);
 
 }
