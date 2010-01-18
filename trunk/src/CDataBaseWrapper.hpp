@@ -42,7 +42,9 @@ class CDataBaseWrapper : public CSingleton<CDataBaseWrapper>
 public:
 
 	void handleReceived();
+
 	void enqueReceived(ActiveHost& host);
+
 	void saveHostToDB(ActiveHost& host);
 
 private:
