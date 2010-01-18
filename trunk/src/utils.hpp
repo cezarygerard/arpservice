@@ -1,36 +1,10 @@
-/*
- * Copyright (c) 1999 - 2005 NetGroup, Politecnico di Torino (Italy)
- * Copyright (c) 2005 - 2006 CACE Technologies, Davis (California)
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- *
- * 1. Redistributions of source code must retain the above copyright
- * notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- * notice, this list of conditions and the following disclaimer in the
- * documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the Politecnico di Torino, CACE Technologies 
- * nor the names of its contributors may be used to endorse or promote 
- * products derived from this software without specific prior written 
- * permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
+/**
+* @author Cezary Zawadka, Sebastian £uczak  
+* @date 2010.01.17
+* @version 0.9
+*
+*	
+*/
 
 #ifndef UTILS_H
 #define UTILS_H
@@ -56,7 +30,7 @@ using namespace std;
 
 namespace utils
 {
-	//rozmiar pakietu ARP request
+	///rozmiar pakietu ARP request
 	const int ARP_REQ_SIZE = 60;
 	
 	struct IPAddress
@@ -71,33 +45,36 @@ namespace utils
 
 //	struct IPAddress;
 //	struct MacAdress;
-	//zmiania IP z long int na string
+	///zmiania IP z long int na string
 	string iptos(u_long in);
 
-	//zmiania IP ze struktury utils::IPAddress na string
+	///zmiania IP ze struktury utils::IPAddress na string, format "192.168.1.1"
 	string iptos(IPAddress in);
 	
+	///zamienia mac na string, format: "0044f6e13344"
 	string macToS(MacAdress in);
 
-	//wypisanie informaqcji o danym interfejsie, uzywane w utils::init()
+	///wypisanie informaqcji o danym interfejsie, uzywane w utils::init()
 	void ifprint(pcap_if_t *d);
 	
-	//zmiania IP z long int na utils::IPAddress 
+	///zmiania IP z long int na utils::IPAddress 
 	IPAddress iptoIP(u_long in);
 
 	///inicjalizacja programu - wypisanie listy interfejsow, zaczytanie ktory interfejs ma byc uzyty
 	pcap_if_t * init();
 	
-	//wypisuje na standardowe wyjscie pierwsze size bajtow z tablicy data
+	///wypisuje na standardowe wyjscie pierwsze size bajtow z tablicy data
 	void printBytes(unsigned char data[], int size);
 	
-	//zwraca MAC dla interfejsu o podanym IP
-	//@return utils::MacAdress
-	//@param utils::IPAddress 
+	///zwraca MAC dla interfejsu o podanym IP
+	///@return utils::MacAdress
+	///@param utils::IPAddress 
 	MacAdress getMACaddress(IPAddress ip);
 
+	///zwraca czas lokalny, format format "YYYY-MM-DD-HH-MM-SS"
 	string getTime();
-//	bool operator<(const MacAdress& mac1, const MacAdress& mac2 );
+
+	//	bool operator<(const MacAdress& mac1, const MacAdress& mac2 );
 
 }
 

@@ -1,3 +1,11 @@
+/**
+* @author Cezary Zawadka
+* @date 2010.01.17
+* @version 0.9
+*
+*	
+*/
+
 #include "CDataBaseWrapper.hpp"
 
 
@@ -39,6 +47,8 @@ void CDataBaseWrapper::handleReceived()
 		if((*it).second.ttl<=0)
 		{
 			//zapisz info do bazy//
+			ah.stop = utils::getTime();
+			saveHostToDB(ah);
 			activeHosts_.erase(it);
 		}
 	}
@@ -77,14 +87,15 @@ void CDataBaseWrapper::enqueReceived(ActiveHost& host)
 
 void CDataBaseWrapper::saveHostToDB(ActiveHost& host)
 {
+	boost::mutex::scoped_lock scoped_lock(mutex_);
 	stringstream query;
 	sqlite3_stmt *statement;
-	query<<"insert into arprecord (mac,ip,start,stop) values ('"<<utils::macToS(host.mac)<<",'"
-		<<utils::iptos(host.ip)<<",'"<<host.start<<",'"<<host.stop<<"');";
-			cout<<query.str();
-			//		1234','456','sd','ww');"<<;
-		if (sqlite3_prepare_v2(database,query.str().c_str(),-1,&statement, NULL) == SQLITE_OK)
-		
-		cout<<"chyba sie udalo!!"<<endl;
+	query<<"insert into arprecord (mac,ip,start,stop) values ('"<<utils::macToS(host.mac)<<"','"
+			<<utils::iptos(host.ip)<<"','"<<host.start<<"','"<<host.stop<<"');";
 
+	int result = sqlite3_prepare_v2(database,query.str().c_str(),-1,&statement, NULL);
+	if(result == SQLITE_OK)
+		cout<<"CDataBaseWrapper::saveHostToDB udalo sie"<<endl;
+	else	
+		cout<<"CDataBaseWrapper::saveHostToDB fail"<<result<<endl;
 }

@@ -21,9 +21,10 @@ int main(int argc, char *argv[])
 	ah.mac.m[5] = 5;
 	ah.start = "2010-01-17-20-20-20";
 	ah.stop = "2010-01-17-23-20-20";
-	CDataBaseWrapper::getInstance()->enqueReceived(ah);
-	CDataBaseWrapper::getInstance()->saveHostToDB(ah);
+//	CDataBaseWrapper::getInstance()->enqueReceived(ah);
+//	CDataBaseWrapper::getInstance()->saveHostToDB(ah);
 //	cout<<utils::getTime()<<endl;
+
 	while(!quit)	
 	{
 		CNetworkAdapter::getInstance()->sendARPs();	

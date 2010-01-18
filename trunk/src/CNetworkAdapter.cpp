@@ -1,3 +1,11 @@
+/**
+* @author Cezary Zawadka 
+* @date 2010.01.17
+* @version 0.9
+*
+*	
+*/
+
 #include "CNetworkAdapter.hpp"
 #include <math.h>
 
@@ -149,6 +157,7 @@ void CNetworkAdapter::sendARPs()
 						arp_req[40]=o3;
 						arp_req[41]=o4;
 						o4++;
+						boost::mutex::scoped_lock scoped_lock(mutex_);
 						if (pcap_sendpacket(fp_, arp_req, utils::ARP_REQ_SIZE ) != 0)
 						{
 							fprintf(stderr,"\nError sending the packet: \n", pcap_geterr(fp_));
