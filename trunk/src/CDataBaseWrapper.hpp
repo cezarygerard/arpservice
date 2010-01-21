@@ -53,6 +53,12 @@ private:
 	
 	~CDataBaseWrapper();
 
+	//Laduje wszystkie histroryczne hosty, powinno byc odpalane na poczatku dzialania programu
+	void loadAllHosts();
+
+	//zapisuje wszystkie hosty i ustawia im ttl na -1, powinno byc odpalane prze zamykaniu programu
+	void saveAllHosts();
+
 	///kolejka FIFO hostow od ktorych zostaly odebrany ARP, ale jeszcze nie 
 	queue <ActiveHost> received_;
 

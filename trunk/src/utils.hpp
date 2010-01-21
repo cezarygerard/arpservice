@@ -3,7 +3,7 @@
 * @date 2010.01.17
 * @version 0.9
 *
-*	
+*@todo IPAdress i MacAdress powinny byc klasami z metodami do ich formatowania	
 */
 
 #ifndef UTILS_H
@@ -21,6 +21,7 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include<math.h> 
 
 #pragma comment(lib, "iphlpapi.lib")
 
@@ -43,14 +44,21 @@ namespace utils
 		unsigned char m[6];
 	};
 
+	int charToHex(char c);
+
 //	struct IPAddress;
 //	struct MacAdress;
 	///zmiania IP z long int na string
+	
 	string iptos(u_long in);
 
 	///zmiania IP ze struktury utils::IPAddress na string, format "192.168.1.1"
 	string iptos(IPAddress in);
 	
+	MacAdress sToMac(string s);
+
+	IPAddress sToIp(string s);
+
 	///zamienia mac na string, format: "0044f6e13344"
 	string macToS(MacAdress in);
 

@@ -23,19 +23,24 @@ bool lessMAC::operator()(const MacAdress& m1, const MacAdress& m2)const
 
 CDataBaseWrapper::CDataBaseWrapper()
 {
-	
+	database = NULL;
 	if (sqlite3_open("../sqlite/ARPrecord.sqlite", &database) == SQLITE_OK) 
 	{
 		cout<<"CDataBaseWrapper::CDataBaseWrapper() udalo sie poloczyc z baza"<<endl;
+		loadAllHosts();
 	}
 	else
 		cout<<"CDataBaseWrapper::CDataBaseWrapper() nie!!!! udalo sie poloczyc z baza"<<endl;
-		
+	this;
 }
+
 CDataBaseWrapper::~CDataBaseWrapper()
 {
+	saveAllHosts();
 	sqlite3_close(database);
+	cout<<"CDataBaseWrapper::~CDataBaseWrapper() zamykanie"<<endl;
 }
+
 void CDataBaseWrapper::handleReceived()
 {
 	boost::mutex::scoped_lock scoped_lock(mutex_);
@@ -43,13 +48,17 @@ void CDataBaseWrapper::handleReceived()
 	map<utils::MacAdress,ActiveHost, lessMAC>::iterator it;
 	for(it = activeHosts_.begin(); it != activeHosts_.end(); it++ )
 	{
-		(*it).second.ttl -=1;
-		if((*it).second.ttl<=0)
+		if((*it).second.ttl>0)
 		{
+			(*it).second.ttl -=1;
+		}
+		if((*it).second.ttl==0)
+		{
+			(*it).second.ttl -=1;
 			//zapisz info do bazy//
-			ah.stop = utils::getTime();
-			saveHostToDB(ah);
-			activeHosts_.erase(it);
+			(*it).second.stop = utils::getTime();
+			saveHostToDB((*it).second);
+			//activeHosts_.erase(it);
 		}
 	}
 
@@ -92,10 +101,59 @@ void CDataBaseWrapper::saveHostToDB(ActiveHost& host)
 	sqlite3_stmt *statement;
 	query<<"insert into arprecord (mac,ip,start,stop) values ('"<<utils::macToS(host.mac)<<"','"
 			<<utils::iptos(host.ip)<<"','"<<host.start<<"','"<<host.stop<<"');";
-
-	int result = sqlite3_prepare_v2(database,query.str().c_str(),-1,&statement, NULL);
-	if(result == SQLITE_OK)
+//	cout<<"CDataBaseWrapper::saveHostToDB:"<<query.str()<<endl;
+	sqlite3_prepare_v2(database,query.str().c_str(),-1,&statement, NULL);
+	int result = sqlite3_step(statement);
+	if(result == SQLITE_DONE)
 		cout<<"CDataBaseWrapper::saveHostToDB udalo sie"<<endl;
 	else	
 		cout<<"CDataBaseWrapper::saveHostToDB fail"<<result<<endl;
+
+	sqlite3_finalize(statement);
+}
+
+void CDataBaseWrapper::loadAllHosts()
+{
+	boost::mutex::scoped_lock scoped_lock(mutex_);
+	
+	string selectSql = "select * from arprecord group by mac;";
+	sqlite3_stmt *statement;
+	if (sqlite3_prepare_v2(database, selectSql.c_str(), -1, &statement, NULL) == SQLITE_OK) {
+		while (sqlite3_step(statement) == SQLITE_ROW) {
+			ActiveHost ah;
+			int id = sqlite3_column_int(statement, 0);
+			
+			char *str = (char *)sqlite3_column_text(statement, 1);
+			ah.mac = utils::sToMac(string(str));
+
+			str = (char *)sqlite3_column_text(statement, 2);
+			ah.ip = utils::sToIp(string(str));
+			
+			str = (char *)sqlite3_column_text(statement, 3);
+			ah.start = string (str);
+			
+			str = (char *)sqlite3_column_text(statement, 4);
+			ah.stop = string (str);
+			ah.ttl = -1;
+			activeHosts_.insert( pair<utils::MacAdress,ActiveHost>(ah.mac,ah) );
+		}	
+	}
+}
+
+void CDataBaseWrapper::saveAllHosts()
+{
+//	boost::mutex::scoped_lock scoped_lock(mutex_);
+
+	map<utils::MacAdress,ActiveHost, lessMAC>::iterator it;
+	
+	for(it = activeHosts_.begin(); it != activeHosts_.end(); it++ )
+	{
+		if((*it).second.ttl>0)
+		{
+			(*it).second.ttl = - 1;
+			//zapisz info do bazy//
+			(*it).second.stop = utils::getTime();
+			saveHostToDB((*it).second);
+		}	
+	}
 }

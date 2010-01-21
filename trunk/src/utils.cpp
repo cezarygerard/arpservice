@@ -254,4 +254,66 @@ namespace utils
 		return out.str();
 	}
 
+	MacAdress sToMac(string s)
+	{
+		MacAdress m;
+		for (int i = 0; i<6; i++)
+		{
+			m.m[i] = charToHex(s[2*i]) * 16 + charToHex(s[2*i+1]);
+		}
+
+		return m;
+	}
+
+	int charToHex(char c)
+	{
+		//int i = c;
+		switch (c)
+		{
+			case '0': return 0;
+			case '1': return 1;
+			case '2': return 2;
+			case '3': return 3;
+			case '4': return 4;
+			case '5': return 5;
+			case '6': return 6;
+			case '7': return 7;
+			case '8': return 8;
+			case '9': return 9;
+			case 'a': return 10;
+			case 'A': return 10;
+			case 'b': return 11;
+			case 'B': return 11;
+			case 'c': return 12;
+			case 'C': return 12;
+			case 'd': return 13;
+			case 'D': return 13;
+			case 'e': return 14;
+			case 'E': return 14;
+			case 'f': return 15;
+			case 'F': return 15;
+			default: return 0;
+			}
+	}
+
+	IPAddress sToIp(string s)
+	{
+		IPAddress ip;
+		unsigned int j = 0;
+		unsigned int v = 0;
+		//unsigned int p =0;
+		for(unsigned int i =0; i < s.length();i++)
+		{
+			if(s[i] == '.')
+			{
+				ip.ip[j++] = v;
+			//	p = 0;
+				v=0;
+			}
+
+			v = v * 10 + charToHex(s[i]);
+		}
+		return ip;
+	}
+
 }
