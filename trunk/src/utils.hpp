@@ -44,6 +44,20 @@ namespace utils
 		unsigned char m[6];
 	};
 
+	// ARP
+	struct ARPHeader
+	{
+		u_short htype;
+		u_short ptype;
+		u_char hlen;
+		u_char plen;
+		u_short oper;
+		MacAdress sha;
+		IPAddress spa;
+		MacAdress tha;
+		IPAddress tpa;
+	};
+
 	int charToHex(char c);
 
 //	struct IPAddress;

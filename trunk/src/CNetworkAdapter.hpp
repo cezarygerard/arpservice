@@ -13,6 +13,10 @@
 #include <pcap.h>
 #include "utils.hpp" 
 #include "CSingleton.hpp"
+#include "ActiveHost.hpp"
+#include "CDataBaseWrapper.hpp"
+#include <boost/thread.hpp>
+#include <boost/bind.hpp>
 #include <boost/thread/mutex.hpp>
 
 //
@@ -32,7 +36,8 @@ public:
 
 	//wywolanie tej funkcji powoduje jednokrotne wyslanie ARPow na wszystkie hosty podsieci
 	void sendARPs();
-	
+	//Metoda uruchamia watek odbierania pakietow
+	void startCapturingARPs();
 private:
 	//ip uzywanego interfejsu sieciowego
 	utils::IPAddress ip_;
@@ -42,14 +47,22 @@ private:
 	utils::IPAddress broadcast_;
 	//MacAdress uzywanego interfejsu sieciowego
 	utils::MacAdress mac_;
+	//Metoda stosowana przy pobieraniu pakietow
+	void captureARPs();
+	
+	static bool stopCaptureARPs_;
+
+	///Watek odbierania pakietow
+	boost::thread captureARPsThread_;
+
+	static bool initDone_;
 
 	
-	static bool initDone_;
 	
 	//Item in a list of interfaces, w naszym przypadku na tym interfejsie wysylamy/odbieramy
 	pcap_if_t *d_;
 	
-	//Descriptor of an open capture instance. potrzebne w pcap_sendpacket()
+	//Descriptor of an open capture instance. potrzebne w pcap_sendpacket() i pcap_next_ex()
 	pcap_t *fp_;
 	
 	//od synchronizacji waktow - nie powinno sie jednoczesnie nadawac i odbierac
