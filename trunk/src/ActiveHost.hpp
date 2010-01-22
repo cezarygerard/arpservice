@@ -10,6 +10,11 @@
 #define ACTIVE_HOST_H
 
 #include "utils.hpp" 
+#include <boost/serialization/split_member.hpp>
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/export.hpp> 
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
 
 using namespace utils;
 
@@ -31,6 +36,18 @@ struct ActiveHost
 	//'flaga', time-to-live, inicjalizowana na 5, gdy chost jest aktywny pozostaje na 5, jezeli
 	//go nie ma, zmiejszana o 1, gdy dojdzie do zeraz host przechodzi do historii(bazy danych)
 	int ttl;
+
+	template<class Archive>
+    void serialize(Archive & ar, const unsigned int version)
+    {
+		//ar & BOOST_SERIALIZATION_NVP(thisSqn_); 
+		//ar & (thisSqn_); 
+		ip_ & ip.ip;
+		mac_ & mac.m;
+		start_ & start;
+		stop_ & stop;
+		ttl_ & ttl;
+	}
 };
 
 //bool operator<(const MacAdress& mac1, const MacAdress& mac2 );
