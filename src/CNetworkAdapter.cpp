@@ -10,6 +10,7 @@
 #include <math.h>
 
 bool CNetworkAdapter::initDone_=false;
+bool CNetworkAdapter::stopCaptureARPs_ = false;
 
 ///Konstruktor domyslny
 CNetworkAdapter::CNetworkAdapter()
@@ -20,6 +21,7 @@ CNetworkAdapter::CNetworkAdapter()
 ///Destruktor
 CNetworkAdapter::~CNetworkAdapter()
 {
+	stopCaptureARPs_=true;
 	initDone_=false;
 }
 
@@ -69,7 +71,7 @@ void CNetworkAdapter::open()
 		}
 
 	   /* start the capture */
-	  //  pcap_loop(fp_, 0, packet_handler, NULL);
+	  startCapturingARPs();
 
 	}
 }
@@ -174,4 +176,82 @@ void CNetworkAdapter::sendARPs()
 	//	Sleep(60*1000);
 //	}
 }
+void CNetworkAdapter::startCapturingARPs()
+{
+	stopCaptureARPs_ = false;
+	captureARPsThread_ = boost::thread(boost::bind(&CNetworkAdapter::captureARPs, this));
+}
+
+void CNetworkAdapter::captureARPs()
+{
+	struct bpf_program fcode;
+	u_int netmask;
+
+	string s = "arp dst host " + utils::iptos(ip_);
+	char* packet_filter = const_cast<char*>(s.c_str());
+	
+	cout << packet_filter << endl;
+
+	if (d_->addresses != NULL)
+        /* Retrieve the mask of the first address of the interface */
+		netmask=((struct sockaddr_in *)(d_->addresses->netmask))->sin_addr.S_un.S_addr;
+    else
+        /* If the interface is without an address we suppose to be in a C class network */
+        netmask=0xffffff; 
+
+
+	// compile the filter
+	 if (pcap_compile(fp_, &fcode, packet_filter, 1, netmask) < 0)
+    {
+		cerr << "CNetworkAdapter::captureARPs: Nie udalo sie skompilowac filtra, sprawdz skladnie!!" << endl;
+        /* Free the device list */
+		stopCaptureARPs_ = true;
+    }
+    
+	//set the filter
+	if (pcap_setfilter(fp_, &fcode) < 0)
+    {
+        cerr << "CNetworkAdapter::captureARPs: Blad przy ustawianiu filtra!!" << endl;
+		stopCaptureARPs_ = true;
+    }
+
+	int res;
+	ActiveHost ah;
+	struct pcap_pkthdr *header;
+	const u_char *pkt_data;
+	utils::ARPHeader *arp_h;
+
+	cout << "CNetworkAdapter::captureARPs: rozpoczeto watek captureARPsThread" << endl;
+	while(!stopCaptureARPs_)
+	{
+		
+			/* Retrieve the packets */
+			while((res = pcap_next_ex( fp_, &header, &pkt_data)) >= 0){
+		        
+				if(res == 0)
+					/* Timeout elapsed */
+					continue;
+
+				arp_h = (utils::ARPHeader *)(pkt_data + 14);
+				
+				// jezeli dany arp jest odpowiedzia, obsluz
+				if(arp_h->oper == 512) 
+				{
+					cout << endl;
+					cout << utils::iptos(arp_h->spa) << endl;
+					cout << utils::macToS(arp_h->sha) << endl;
+
+					ah.ip = arp_h->spa;
+					ah.mac = arp_h->sha;
+					CDataBaseWrapper::getInstance()->enqueReceived(ah);
+				}
+			}
+		    
+			if(res == -1){
+				cerr << "CNetworkAdapter::captureARPs: Blad przy odbieraniu pakietu!!" << endl;
+				stopCaptureARPs_ = true;
+			}
+	}
+}
+
 
