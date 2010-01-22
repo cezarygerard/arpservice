@@ -31,7 +31,6 @@ CDataBaseWrapper::CDataBaseWrapper()
 	}
 	else
 		cout<<"CDataBaseWrapper::CDataBaseWrapper() nie!!!! udalo sie poloczyc z baza"<<endl;
-	this;
 }
 
 CDataBaseWrapper::~CDataBaseWrapper()
