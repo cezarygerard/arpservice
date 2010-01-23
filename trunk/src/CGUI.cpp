@@ -26,6 +26,7 @@ SDL_Surface *message = NULL;
 
 //The font that's going to be used 
 TTF_Font *font = NULL; 
+TTF_Font *font_large = NULL;
 
 //The color of the font 
 SDL_Color textColor = { 255, 255, 255 }; 
@@ -123,8 +124,9 @@ bool CGUI::load_files()
 	//Open the font 
 	font = TTF_OpenFont( "../res/verdana.ttf", 12 ); 
 
+	font_large = TTF_OpenFont("../res/verdana.ttf", 24 );
 	//If there was an error in loading the font 
-	if( font == NULL ) 
+	if( font == NULL || font_large == NULL ) 
 	{ 
 		return false; 
 	} 
@@ -136,7 +138,7 @@ void CGUI::clean_up()
 {
 	//Close the font that was used 
 	TTF_CloseFont( font ); 
-
+	TTF_CloseFont( font_large);
     //Free the surfaces
     SDL_FreeSurface( background );
 	SDL_FreeSurface( inactive );
@@ -156,8 +158,6 @@ void CGUI::refreshGUI()
 
 	while(!stopCGUI_)
 	{
-		//Quit flag
-		bool quit = false;
 
 		CTimer::getInstance()->addObserver(*this, 1000/FRAMES_PER_SECOND);
 
@@ -165,18 +165,16 @@ void CGUI::refreshGUI()
 		if( init() == false )
 		{
 			stopCGUI_ = true;
-			quit = true;
 		}
 
 		//Load the files
 		if( load_files() == false )
 		{
 			stopCGUI_ = true;
-			quit = true;
 		}
 
 		//While the user hasn't quit
-		while( quit == false )
+		while( !stopCGUI_ )
 		{
 			//Start the frame timer
 			time = CTimer::getInstance()->getTime();
@@ -188,8 +186,8 @@ void CGUI::refreshGUI()
 				if( event.type == SDL_QUIT )
 				{
 					//Quit the program
-					quit = true;
 					stopCGUI_ = true;
+					CMainLoop::getInstance()->quitNow();
 				}
 			}
 
@@ -199,7 +197,8 @@ void CGUI::refreshGUI()
 			//Nacisniecie ENTER
 			if( keystates[ SDLK_RETURN ] )
 			{
-				///***///
+				//CMainLoop::
+				
 			}
 
 			createTable();
@@ -208,11 +207,9 @@ void CGUI::refreshGUI()
 			if( SDL_Flip( screen ) == -1 )
 			{
 				stopCGUI_ = true;
-				quit = true;
 			}
 
 			//Cap the frame rate
-			
 			time1 = CTimer::getInstance()->getTime()-time;
 			if(time1<1000/FRAMES_PER_SECOND)
 				CTimer::getInstance()->delay((1000/FRAMES_PER_SECOND) - time1);	
@@ -223,49 +220,79 @@ void CGUI::refreshGUI()
 	CTimer::destroyInstance();
 }
 
+
+void CGUI::createTable()
+{
+	int i = 0;
+	int num_of_hosts = activeHosts_.size();
+
+	int max_x = static_cast<int>(sqrt(static_cast<double>(num_of_hosts))+1)%9;
+	int max_y = static_cast<int>(sqrt(static_cast<double>(num_of_hosts)))%7;
+	
+	int start_off_x, start_off_y;
+
+	start_off_x = (SCREEN_WIDTH - max_x*120)/2;
+	start_off_y = (SCREEN_HEIGHT + 100 - max_y*120)/2;
+
+	apply_surface( 0, 0, background, screen );
+
+	message = TTF_RenderText_Solid( font_large, "Monitor sieci LAN", textColor ); 
+	apply_surface( SCREEN_WIDTH/2-100, 60, message, screen );
+
+	//Uspokoj uzytkownika tekstem o oczekiwaniu
+	if(num_of_hosts == 0)
+	{
+		message = TTF_RenderText_Solid( font, "Kompletowanie danych...", textColor ); 
+		apply_surface( start_off_x, start_off_y, message, screen );
+	}
+	for(int y = 0; y < max_y; y++)
+		for(int x = 0; x < max_x; x++)
+		{
+			if(i < num_of_hosts)
+			{
+				//Zaleznie od TTL pokaz odpowiednia ikone
+				if(boost::get<2>(activeHosts_[i]) > 0)
+				{
+					apply_surface( start_off_x + (x * 120), start_off_y + (y * 120), active, screen );
+				}
+				else if(boost::get<2>(activeHosts_[i]) <= 0)
+				{
+					apply_surface( start_off_x + (x * 120), start_off_y + (y * 120), inactive, screen );
+				}
+				// Wypisz IP
+				message = TTF_RenderText_Solid( font, utils::iptos(boost::get<0>(activeHosts_[i])).c_str(), textColor ); 
+				apply_surface( start_off_x + (x * 120), start_off_y + active->h + (y * 120), message, screen );
+				// Wypisz MAC
+				message = TTF_RenderText_Solid( font, utils::macToS(boost::get<1>(activeHosts_[i])).c_str(), textColor ); 
+				apply_surface( start_off_x + (x * 120), start_off_y + active->h + 12 + (y * 120), message, screen );
+			}
+			if(i == num_of_hosts)
+			{
+				apply_surface( start_off_x + (x * 120), start_off_y + (y * 120), active, screen );
+				// Wypisz IP
+				message = TTF_RenderText_Solid( font, utils::iptos(CNetworkAdapter::getInstance()->getIPandMac().first).c_str(), textColor ); 
+				apply_surface( start_off_x + (x * 120), start_off_y + active->h + (y * 120), message, screen );
+				// Wypisz MAC
+				message = TTF_RenderText_Solid( font, utils::macToS(CNetworkAdapter::getInstance()->getIPandMac().second).c_str(), textColor ); 
+				apply_surface( start_off_x + (x * 120), start_off_y + active->h + 12 + (y * 120), message, screen );
+			}
+			i++;
+		}
+}
+
 void CGUI::startCGUI()
 {
 	stopCGUI_ = false;
 	threadCGUI_ = boost::thread(boost::bind(&CGUI::refreshGUI, this));
 }
 
-void CGUI::createTable()
+void CGUI::stopCGUI()
 {
-	std::vector<boost::tuple<utils::IPAddress, utils::MacAdress, int>> active_hosts = CDataBaseWrapper::getInstance()->cguiQuery();
-	int i = 0;
-	int num_of_hosts = active_hosts.size();
+	stopCGUI_ = true;
+}
 
-	int max_x = static_cast<int>(sqrt(static_cast<double>(num_of_hosts))+1);
-	int max_y = static_cast<int>(sqrt(static_cast<double>(num_of_hosts)));
-	int start_off_x, start_off_y;
 
-	start_off_x = (SCREEN_WIDTH - max_x*120)/2;
-	start_off_y = (SCREEN_HEIGHT - max_y*120)/2;
-
-	string s;
-	
-	//Apply the background
-	apply_surface( 0, 0, background, screen );
-	
-	for(int y = 0; y < max_y; y++)
-		for(int x = 0; x < max_x; x++)
-		{
-			if(i < num_of_hosts)
-			{
-				//std::cout << s;			
-				if(boost::get<2>(active_hosts[i]) > 0)
-				{
-					apply_surface( start_off_x + (x * 120), start_off_y + (y * 120), active, screen );
-				}
-				else if(boost::get<2>(active_hosts[i]) <= 0)
-				{
-					apply_surface( start_off_x + (x * 120), start_off_y + (y * 120), inactive, screen );
-				}
-				message = TTF_RenderText_Solid( font, utils::iptos(boost::get<0>(active_hosts[i])).c_str(), textColor ); 
-				apply_surface( start_off_x + (x * 120), start_off_y + active->h + (y * 120), message, screen );
-				message = TTF_RenderText_Solid( font, utils::macToS(boost::get<1>(active_hosts[i])).c_str(), textColor ); 
-				apply_surface( start_off_x + (x * 120), start_off_y + active->h + 12 + (y * 120), message, screen );
-			i++;
-			}
-		}
+void CGUI::refreshCGUIActiveHosts()
+{
+	activeHosts_ = CDataBaseWrapper::getInstance()->cguiQuery();
 }

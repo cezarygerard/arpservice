@@ -18,7 +18,9 @@
 #include <boost/thread.hpp>
 #include <boost/tuple/tuple.hpp>
 
+#include "CMainLoop.hpp"
 #include "CDataBaseWrapper.hpp"
+#include "CNetworkAdapter.hpp"
 #include "CTimerObserver.hpp"
 #include "CTimer.hpp"
 #include "utils.hpp"
@@ -31,6 +33,8 @@ public:
 
 	//Metoda uruchamia watek odbierania pakietow
 	void startCGUI();
+	void stopCGUI();
+	void refreshCGUIActiveHosts();
 	
 
 private:
@@ -45,6 +49,8 @@ private:
 
 	CGUI() {};
 	~CGUI() {};
+
+	std::vector<boost::tuple<utils::IPAddress, utils::MacAdress, int>> activeHosts_;
 
 	static bool stopCGUI_;
 	///Watek odbierania pakietow

@@ -44,7 +44,7 @@ class CDataBaseWrapper : public CSingleton<CDataBaseWrapper>
 
 	friend class CSingleton<CDataBaseWrapper>;
 	friend class CConnectionMgr;
-	friend class CGUI;
+
 
 public:
 
@@ -54,7 +54,7 @@ public:
 
 	void saveHostToDB(ActiveHost& host);
 
-	std::vector<boost::tuple<IPAddress, MacAdress, int>> cguiQuery();
+	const std::vector<boost::tuple<IPAddress, MacAdress, int>> cguiQuery();
 
 private:
 

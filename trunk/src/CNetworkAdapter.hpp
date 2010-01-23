@@ -11,10 +11,13 @@
 
 #define HAVE_REMOTE 
 #include <pcap.h>
+
 #include "utils.hpp" 
 #include "CSingleton.hpp"
 #include "ActiveHost.hpp"
 #include "CDataBaseWrapper.hpp"
+
+
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 #include <boost/thread/mutex.hpp>
@@ -39,7 +42,11 @@ public:
 	//Metoda uruchamia watek odbierania pakietow
 	void startCapturingARPs();
 
+
+	std::pair<utils::IPAddress, utils::MacAdress> getIPandMac() const;
+
 	void startSendingARPs();
+
 private:
 	//ip uzywanego interfejsu sieciowego
 	utils::IPAddress ip_;
