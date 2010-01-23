@@ -19,7 +19,7 @@ void CMainLoop::enterMainLoop()
 	while(!quit_)	
 	{	
 		CDataBaseWrapper::getInstance()->handleReceived();
-		boost::this_thread::sleep(boost::posix_time::millisec(1000));
+		boost::this_thread::sleep(boost::posix_time::seconds(1));
 	}
 }
 
@@ -28,7 +28,7 @@ void CMainLoop::endMainLoop()
 
 	CDataBaseWrapper::destroyInstance();
 	CNetworkAdapter::destroyInstance();
-	CGUI::getInstance()->stopCGUI();
+	CConnectionMgr::destroyInstance(); 
 	CGUI::destroyInstance();
 }
 
