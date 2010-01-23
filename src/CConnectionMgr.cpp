@@ -36,6 +36,7 @@ void CConnectionMgr::startListening(int port)
 	stopListening_ = false;
 	listeningThread_.join();
 	listeningThread_ = boost::thread(boost::bind(&CConnectionMgr::listen, this, port));
+	listeningThread_.
 }
 
 void CConnectionMgr::connect(std::string ip, int port)
@@ -67,7 +68,10 @@ void CConnectionMgr::connect(std::string ip, int port)
 	//	return 1;
 	}
 	else
+	{
 		fprintf(stderr, "SDLNet_TCP_Open: %s\n", SDLNet_GetError());
+		startListening();
+	}
 
 }
 
@@ -124,26 +128,9 @@ void CConnectionMgr::listen(int port)
 
 		boost::this_thread::sleep(boost::posix_time::millisec(10));
 
-	/*		
-		CTimer::getInstance()->delay(10);
-		if(((t+=10) > 100*1000))
-		{
-			quit = true;
-			cout<<"Nie podlaczono zadnego klienta, uruchamianie trybu gry pojedynczej... "<<endl;
-			CTimer::getInstance()->delay(1000);
-			break;
-		}
-	*/		
-	}
-
-//	isClient_ = false;
-//~~czesc serwerowa 
-
 	SDLNet_TCP_Close(sd_);
 	sockSet_=SDLNet_AllocSocketSet(1);
 	SDLNet_TCP_AddSocket(sockSet_, csd_);
-	
-//	return 0;
 	
 }
 
@@ -174,18 +161,9 @@ void CConnectionMgr::sendInfo(TCPsocket csd_)
 			}
 		}
 		Buffer b;
-		//b.buffer_=oss.str().c_str();
+
 		strcpy_s(b.buffer_, oss.str().c_str());
-		//const string str =  oss.str();
-	//int len = sizeof(b.buffer_);
-		//int len = sizeof(oss.str().c_str());
-		cout<<"CConnectionMgr::sendInfo: "<<oss.str()<<endl;
-/*
-		if (SDLNet_TCP_Send(csd_, oss.str().c_str(), len) < len)
-		{
-			fprintf(stderr, "SDLNet_TCP_Send: %s\n", SDLNet_GetError());
-		}
-*/		
+		
 		if (SDLNet_TCP_Send(csd_, b.buffer_, MAX_BUFF) < MAX_BUFF)
 		{
 			fprintf(stderr, "SDLNet_TCP_Send: %s\n", SDLNet_GetError());
@@ -197,39 +175,7 @@ void CConnectionMgr::sendInfo(TCPsocket csd_)
 	{
 		fprintf(stderr, "SDLNet_TCP_Send: %s\n", SDLNet_GetError());
 	}
-	cout<<"CConnectionMgr::sendInfo: "<<QUIT<<endl;
 	SDLNet_TCP_Close(csd_);
-
-
-
-/*	while(!stopSendThread_)
-	{
-		CTimer::getInstance()->delay(10);
-		boost::mutex::scoped_lock scoped_lock(mutex);
-		while(!toSend_.empty())
-		{
-			//int i = toSend_.size();
-			cout<<"CNetwork::sendTh()"<<endl;
-			Buffer b;
-			std::ostringstream oss;
-			//boost::archive::xml_oarchive oa(oss);
-			boost::archive::text_oarchive oa(oss);
-		//	oa<<BOOST_SERIALIZATION_NVP(toSend_.front());
-			toSend_;
-			oa<<(toSend_.front());
-			//b.buffer_=oss.str().c_str();
-			strcpy(b.buffer_, oss.str().c_str());
-			//const string str =  oss.str();
-			int len = sizeof(b.buffer_);
-			
-			if (SDLNet_TCP_Send(csd_, b.buffer_, len) < len)
-			{
-				fprintf(stderr, "SDLNet_TCP_Send: %s\n", SDLNet_GetError());
-			}
-			delete(toSend_.front());
-			toSend_.pop();		
-		}
-*/	
 }
 
 void CConnectionMgr::receiveInfo(TCPsocket csd_)
