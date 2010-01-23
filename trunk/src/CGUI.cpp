@@ -151,15 +151,8 @@ void CGUI::clean_up()
 
 void CGUI::refreshGUI()
 {
-
-	CTimer* timer = CTimer::getInstance();
-	int time;
-	int time1;
-
 	while(!stopCGUI_)
 	{
-
-		CTimer::getInstance()->addObserver(*this, 1000/FRAMES_PER_SECOND);
 
 		//Initialize
 		if( init() == false )
@@ -176,8 +169,6 @@ void CGUI::refreshGUI()
 		//While the user hasn't quit
 		while( !stopCGUI_ )
 		{
-			//Start the frame timer
-			time = CTimer::getInstance()->getTime();
 
 			//While there's events to handle
 			while( SDL_PollEvent( &event ) )
@@ -210,14 +201,12 @@ void CGUI::refreshGUI()
 			}
 
 			//Cap the frame rate
-			time1 = CTimer::getInstance()->getTime()-time;
-			if(time1<1000/FRAMES_PER_SECOND)
-				CTimer::getInstance()->delay((1000/FRAMES_PER_SECOND) - time1);	
+			boost::this_thread::sleep(boost::posix_time::millisec(1000/FRAMES_PER_SECOND));
 		}
 
 		clean_up();
 	}
-	CTimer::destroyInstance();
+
 }
 
 

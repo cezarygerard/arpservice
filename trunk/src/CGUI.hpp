@@ -21,11 +21,10 @@
 #include "CMainLoop.hpp"
 #include "CDataBaseWrapper.hpp"
 #include "CNetworkAdapter.hpp"
-#include "CTimerObserver.hpp"
-#include "CTimer.hpp"
+
 #include "utils.hpp"
 
-class CGUI : public CSingleton<CGUI>, public CTimerObserver
+class CGUI : public CSingleton<CGUI>
 {
 	friend CSingleton<CGUI>;
 
