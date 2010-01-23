@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wpcap.lib wpcap.lib ws2_32.lib sqlite3.lib SDL_net.lib SDL.lib  SDLmain.lib"
+				AdditionalDependencies="wpcap.lib wpcap.lib ws2_32.lib sqlite3.lib SDL_net.lib SDL.lib  SDLmain.lib SDL_image.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -185,7 +185,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\CGUI.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\CNetworkAdapter.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\CTimer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\CTimerObserver.cpp"
 				>
 			</File>
 			<File
@@ -215,11 +227,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\CGUI.hpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\CNetworkAdapter.hpp"
 				>
 			</File>
 			<File
 				RelativePath=".\src\CSingleton.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\CTimer.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\CTimerObserver.hpp"
 				>
 			</File>
 			<File
