@@ -36,7 +36,6 @@ void CConnectionMgr::startListening(int port)
 	stopListening_ = false;
 	listeningThread_.join();
 	listeningThread_ = boost::thread(boost::bind(&CConnectionMgr::listen, this, port));
-	listeningThread_.
 }
 
 void CConnectionMgr::connect(std::string ip, int port)
@@ -127,6 +126,7 @@ void CConnectionMgr::listen(int port)
 		}	
 
 		boost::this_thread::sleep(boost::posix_time::millisec(10));
+	}
 
 	SDLNet_TCP_Close(sd_);
 	sockSet_=SDLNet_AllocSocketSet(1);

@@ -75,6 +75,7 @@ private:
 	{
 		char buffer_[MAX_BUFF];
 	};
+
 };
 
 #endif
