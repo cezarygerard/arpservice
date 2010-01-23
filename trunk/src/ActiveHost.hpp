@@ -50,34 +50,6 @@ public:
 	template<class Archive>
     void save(Archive & ar, const unsigned int version) const
     {
-		//ar & BOOST_SERIALIZATION_NVP(thisSqn_); 
-		//ar & (thisSqn_); 
-		/*
-		ar & ip.ip[0];
-		ar & ip.ip[1];
-		ar & ip.ip[2];
-		ar & ip.ip[3];
-		ar & mac.m[0];
-		ar & mac.m[1];
-		ar & mac.m[2];
-		ar & mac.m[3];
-		ar & mac.m[4];
-		ar & mac.m[5];
-		//ar & start;
-		//ar & stop;
-		//ar & ttl;
-		*/
-/*		ar & BOOST_SERIALIZATION_NVP(ip0);
-		ar & BOOST_SERIALIZATION_NVP(ip1);
-		ar & BOOST_SERIALIZATION_NVP(ip2);
-		ar & BOOST_SERIALIZATION_NVP(ip3);
-		ar & BOOST_SERIALIZATION_NVP(m0);
-		ar & BOOST_SERIALIZATION_NVP(m1);
-		ar & BOOST_SERIALIZATION_NVP(m2);
-		ar & BOOST_SERIALIZATION_NVP(m3);
-		ar & BOOST_SERIALIZATION_NVP(m4);
-		ar & BOOST_SERIALIZATION_NVP(m5);
-*/		
 		ar & BOOST_SERIALIZATION_NVP(ip.ip);
 		ar & BOOST_SERIALIZATION_NVP(mac.m);
 		ar & BOOST_SERIALIZATION_NVP(ttl);
@@ -88,34 +60,6 @@ public:
 	template<class Archive>
     void load(Archive & ar, const unsigned int version)
     {
-		//ar & BOOST_SERIALIZATION_NVP(thisSqn_); 
-		//ar & (thisSqn_); 
-		/*
-		ar & ip.ip[0];
-		ar & ip.ip[1];
-		ar & ip.ip[2];
-		ar & ip.ip[3];
-		ar & mac.m[0];
-		ar & mac.m[1];
-		ar & mac.m[2];
-		ar & mac.m[3];
-		ar & mac.m[4];
-		ar & mac.m[5];
-		ar & start;
-		ar & stop;
-		ar & ttl;
-		*/
-/*		ar & BOOST_SERIALIZATION_NVP(ip.ip[0]);
-		ar & BOOST_SERIALIZATION_NVP(ip.ip[1]);
-		ar & BOOST_SERIALIZATION_NVP(ip.ip[2]);
-		ar & BOOST_SERIALIZATION_NVP(ip.ip[3]);
-		ar & BOOST_SERIALIZATION_NVP(mac.m[0]);
-		ar & BOOST_SERIALIZATION_NVP(mac.m[1]);
-		ar & BOOST_SERIALIZATION_NVP(mac.m[2]);
-		ar & BOOST_SERIALIZATION_NVP(mac.m[3]);
-		ar & BOOST_SERIALIZATION_NVP(mac.m[4]);
-		ar & BOOST_SERIALIZATION_NVP(mac.m[5]);
-*/		
 		ar & BOOST_SERIALIZATION_NVP(ip.ip);
 		ar & BOOST_SERIALIZATION_NVP(mac.m);
 		ar & BOOST_SERIALIZATION_NVP(ttl);
