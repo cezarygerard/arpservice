@@ -38,6 +38,8 @@ public:
 	void sendARPs();
 	//Metoda uruchamia watek odbierania pakietow
 	void startCapturingARPs();
+
+	void startSendingARPs();
 private:
 	//ip uzywanego interfejsu sieciowego
 	utils::IPAddress ip_;
@@ -54,6 +56,10 @@ private:
 
 	///Watek odbierania pakietow
 	boost::thread captureARPsThread_;
+
+	boost::thread sendARPsThread_;
+
+	static bool stopSendARPs_;
 
 	static bool initDone_;
 

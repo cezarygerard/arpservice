@@ -11,18 +11,25 @@
 
 #include "utils.hpp" 
 #include <boost/serialization/split_member.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/export.hpp> 
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
+//#include <boost/serialization/nvp.hpp>
+//#include <boost/serialization/export.hpp> 
+//#include <boost/archive/text_oarchive.hpp>
+//#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+//#include <boost/serialization/version.hpp>
 
 using namespace utils;
 
 //ActiveHost jaki jest kazdy widzi:
-struct ActiveHost
+class ActiveHost
 {
-	ActiveHost();
+	friend class boost::serialization::access;
 
+public:
+
+	ActiveHost();
+	~ActiveHost();
 	MacAdress mac;
 
 	IPAddress ip;
@@ -37,18 +44,91 @@ struct ActiveHost
 	//go nie ma, zmiejszana o 1, gdy dojdzie do zeraz host przechodzi do historii(bazy danych)
 	int ttl;
 
+	///szablon umozliwiajacy serializacje klasy
+	///@param &ar archiwum z przestrzeni nazw boost::archive
+	///@param version pole umozliwiajace wersjonowanie klasy, poki co niewykorzystane
 	template<class Archive>
-    void serialize(Archive & ar, const unsigned int version)
+    void save(Archive & ar, const unsigned int version) const
     {
 		//ar & BOOST_SERIALIZATION_NVP(thisSqn_); 
 		//ar & (thisSqn_); 
-		ip_ & ip.ip;
-		mac_ & mac.m;
-		start_ & start;
-		stop_ & stop;
-		ttl_ & ttl;
+		/*
+		ar & ip.ip[0];
+		ar & ip.ip[1];
+		ar & ip.ip[2];
+		ar & ip.ip[3];
+		ar & mac.m[0];
+		ar & mac.m[1];
+		ar & mac.m[2];
+		ar & mac.m[3];
+		ar & mac.m[4];
+		ar & mac.m[5];
+		//ar & start;
+		//ar & stop;
+		//ar & ttl;
+		*/
+/*		ar & BOOST_SERIALIZATION_NVP(ip0);
+		ar & BOOST_SERIALIZATION_NVP(ip1);
+		ar & BOOST_SERIALIZATION_NVP(ip2);
+		ar & BOOST_SERIALIZATION_NVP(ip3);
+		ar & BOOST_SERIALIZATION_NVP(m0);
+		ar & BOOST_SERIALIZATION_NVP(m1);
+		ar & BOOST_SERIALIZATION_NVP(m2);
+		ar & BOOST_SERIALIZATION_NVP(m3);
+		ar & BOOST_SERIALIZATION_NVP(m4);
+		ar & BOOST_SERIALIZATION_NVP(m5);
+*/		
+		ar & BOOST_SERIALIZATION_NVP(ip.ip);
+		ar & BOOST_SERIALIZATION_NVP(mac.m);
+		ar & BOOST_SERIALIZATION_NVP(ttl);
+		ar & BOOST_SERIALIZATION_NVP(start);
+		ar & BOOST_SERIALIZATION_NVP(stop);
 	}
+
+	template<class Archive>
+    void load(Archive & ar, const unsigned int version)
+    {
+		//ar & BOOST_SERIALIZATION_NVP(thisSqn_); 
+		//ar & (thisSqn_); 
+		/*
+		ar & ip.ip[0];
+		ar & ip.ip[1];
+		ar & ip.ip[2];
+		ar & ip.ip[3];
+		ar & mac.m[0];
+		ar & mac.m[1];
+		ar & mac.m[2];
+		ar & mac.m[3];
+		ar & mac.m[4];
+		ar & mac.m[5];
+		ar & start;
+		ar & stop;
+		ar & ttl;
+		*/
+/*		ar & BOOST_SERIALIZATION_NVP(ip.ip[0]);
+		ar & BOOST_SERIALIZATION_NVP(ip.ip[1]);
+		ar & BOOST_SERIALIZATION_NVP(ip.ip[2]);
+		ar & BOOST_SERIALIZATION_NVP(ip.ip[3]);
+		ar & BOOST_SERIALIZATION_NVP(mac.m[0]);
+		ar & BOOST_SERIALIZATION_NVP(mac.m[1]);
+		ar & BOOST_SERIALIZATION_NVP(mac.m[2]);
+		ar & BOOST_SERIALIZATION_NVP(mac.m[3]);
+		ar & BOOST_SERIALIZATION_NVP(mac.m[4]);
+		ar & BOOST_SERIALIZATION_NVP(mac.m[5]);
+*/		
+		ar & BOOST_SERIALIZATION_NVP(ip.ip);
+		ar & BOOST_SERIALIZATION_NVP(mac.m);
+		ar & BOOST_SERIALIZATION_NVP(ttl);
+		ar & BOOST_SERIALIZATION_NVP(start);
+		ar & BOOST_SERIALIZATION_NVP(stop);
+
+	}
+
+		BOOST_SERIALIZATION_SPLIT_MEMBER();
+
 };
+//BOOST_CLASS_VERSION(ActiveHost, 0)
+
 
 //bool operator<(const MacAdress& mac1, const MacAdress& mac2 );
 

@@ -41,7 +41,9 @@ struct lessMAC// : public binary_function<MacAdress, MacAdress, bool>
 ///klasa przechowuje aktywne hosty i zapisuje do bazy danych.
 class CDataBaseWrapper : public CSingleton<CDataBaseWrapper>
 {
+
 	friend class CSingleton<CDataBaseWrapper>;
+	friend class CConnectionMgr;
 	friend class CGUI;
 
 public:

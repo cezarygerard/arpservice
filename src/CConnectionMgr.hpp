@@ -20,8 +20,21 @@
 #include <string>
 #include <boost/thread/mutex.hpp>
 
-
+//#include <boost/archive/text_iarchive.hpp>
+//#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/export.hpp> 
+//#include <boost/archive/binary_oarchive.hpp> // saving
+//#include <boost/archive/binary_iarchive.hpp> // loading
+#include "utils.hpp"
+#include "ActiveHost.hpp"
+#include "CDataBaseWrapper.hpp"
 using namespace std;
+
+class CDataBaseWrapper;
+class ActiveHost;
 
 class CConnectionMgr : public CSingleton<CConnectionMgr>//, public CTimerObserver 
 {
@@ -57,6 +70,16 @@ private:
 	boost::mutex mutex;
 
 	std::vector<boost::shared_ptr<boost::thread> > sendingThreads_;
+
+	SDLNet_SocketSet sockSet_;
+
+	const int static MAX_BUFF = 1024;
+	const string static QUIT;
+
+	struct Buffer
+	{
+		char buffer_[MAX_BUFF];
+	};
 };
 
 #endif
