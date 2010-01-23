@@ -22,6 +22,7 @@ CNetworkAdapter::CNetworkAdapter()
 CNetworkAdapter::~CNetworkAdapter()
 {
 	stopCaptureARPs_=true;
+	stopSendARPs_ = true;
 	initDone_=false;
 }
 
@@ -73,6 +74,7 @@ void CNetworkAdapter::open()
 	   /* start the capture */
 	  startSendingARPs();
 	  startCapturingARPs();
+
 
 	}
 }
@@ -236,7 +238,7 @@ void CNetworkAdapter::captureARPs()
 	{
 		
 			/* Retrieve the packets */
-			while((res = pcap_next_ex( fp_, &header, &pkt_data)) >= 0){
+			while((res = pcap_next_ex( fp_, &header, &pkt_data)) >= 0 && !stopCaptureARPs_){
 		        
 				if(res == 0)
 					/* Timeout elapsed */
@@ -264,4 +266,7 @@ void CNetworkAdapter::captureARPs()
 	}
 }
 
-
+std::pair<utils::IPAddress, utils::MacAdress> CNetworkAdapter::getIPandMac() const
+{
+	return std::make_pair(ip_, mac_);
+}

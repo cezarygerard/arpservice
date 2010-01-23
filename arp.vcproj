@@ -192,6 +192,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\CMainLoop.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\CNetworkAdapter.cpp"
 				>
 			</File>
@@ -234,6 +238,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\CMainLoop.hpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\CNetworkAdapter.hpp"
 				>
 			</File>
@@ -259,6 +267,10 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
+			<File
+				RelativePath=".\src\main\main.cpp"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

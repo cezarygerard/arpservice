@@ -84,13 +84,12 @@ void CDataBaseWrapper::handleReceived()
 		received_.pop();
 		//	utils::MacAdress currentMac = received_.front().mac;
 	//	activeHosts_[currentMac].
+		CGUI::getInstance()->refreshCGUIActiveHosts();
 	}
 }
 
-std::vector<boost::tuple<IPAddress, MacAdress, int>> CDataBaseWrapper::cguiQuery()
+const std::vector<boost::tuple<IPAddress, MacAdress, int>> CDataBaseWrapper::cguiQuery() 
 {
-	boost::mutex::scoped_lock scoped_lock(mutex_);
-
 	std::vector<boost::tuple<IPAddress, MacAdress, int>> v;
 
 	for(std::map<utils::MacAdress,ActiveHost, lessMAC>::iterator it = activeHosts_.begin(); it != activeHosts_.end(); ++it)
@@ -109,7 +108,7 @@ void CDataBaseWrapper::enqueReceived(ActiveHost& host)
 
 void CDataBaseWrapper::saveHostToDB(ActiveHost& host)
 {
-	boost::mutex::scoped_lock scoped_lock(mutex_);
+//	boost::mutex::scoped_lock scoped_lock(mutex_);
 	stringstream query;
 	sqlite3_stmt *statement;
 	query<<"insert into arprecord (mac,ip,start,stop) values ('"<<utils::macToS(host.mac)<<"','"
@@ -155,7 +154,7 @@ void CDataBaseWrapper::loadAllHosts()
 
 void CDataBaseWrapper::saveAllHosts()
 {
-//	boost::mutex::scoped_lock scoped_lock(mutex_);
+	boost::mutex::scoped_lock scoped_lock(mutex_);
 
 	map<utils::MacAdress,ActiveHost, lessMAC>::iterator it;
 	
