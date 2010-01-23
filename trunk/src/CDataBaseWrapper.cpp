@@ -87,6 +87,20 @@ void CDataBaseWrapper::handleReceived()
 	}
 }
 
+std::vector<boost::tuple<IPAddress, MacAdress, int>> CDataBaseWrapper::cguiQuery()
+{
+	boost::mutex::scoped_lock scoped_lock(mutex_);
+
+	std::vector<boost::tuple<IPAddress, MacAdress, int>> v;
+
+	for(std::map<utils::MacAdress,ActiveHost, lessMAC>::iterator it = activeHosts_.begin(); it != activeHosts_.end(); ++it)
+	{
+		v.push_back(boost::make_tuple(it->second.ip, it->second.mac, it->second.ttl));
+	}
+	
+	return v;
+}
+
 void CDataBaseWrapper::enqueReceived(ActiveHost& host)
 {
 	boost::mutex::scoped_lock scoped_lock(mutex_);

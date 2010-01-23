@@ -11,9 +11,17 @@
 
 #include "SDL.h"
 #include "SDL_image.h"
-#include "CTimer.hpp"
+#include "SDL_ttf.h"
+#include <math.h>
+#include <vector>
 
 #include <boost/thread.hpp>
+#include <boost/tuple/tuple.hpp>
+
+#include "CDataBaseWrapper.hpp"
+#include "CTimerObserver.hpp"
+#include "CTimer.hpp"
+#include "utils.hpp"
 
 class CGUI : public CSingleton<CGUI>, public CTimerObserver
 {
@@ -23,6 +31,8 @@ public:
 
 	//Metoda uruchamia watek odbierania pakietow
 	void startCGUI();
+	
+
 private:
 
 	SDL_Surface *load_image( std::string filename );
@@ -31,18 +41,14 @@ private:
 	bool load_files();
 	void clean_up();
 	void refreshGUI();
+	void createTable();
 
-	CGUI();
-	~CGUI();
+	CGUI() {};
+	~CGUI() {};
 
 	static bool stopCGUI_;
 	///Watek odbierania pakietow
 	boost::thread threadCGUI_;
-
-	SDL_Surface *screen;
-	SDL_Surface *active;
-	SDL_Surface *inactive;
-	SDL_Surface *unknown;
 
 	SDL_Event event;
 

@@ -13,14 +13,18 @@
 //#include <pcap.h>
 
 #include <string>
-#include "utils.hpp" 
-#include "CSingleton.hpp"
 #include <map>
-#include "ActiveHost.hpp"
+#include <boost/tuple/tuple.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <queue>
 #include "../sqlite/sqlite3.h"
+
+#include "utils.hpp" 
+#include "CSingleton.hpp"
+#include "ActiveHost.hpp"
+#include "CGUI.hpp"
+
 //#include "../sqlite/sqlite3ext.h"
 //#include "sqlite3.h"
 
@@ -37,7 +41,8 @@ struct lessMAC// : public binary_function<MacAdress, MacAdress, bool>
 ///klasa przechowuje aktywne hosty i zapisuje do bazy danych.
 class CDataBaseWrapper : public CSingleton<CDataBaseWrapper>
 {
-	friend CSingleton<CDataBaseWrapper>;
+	friend class CSingleton<CDataBaseWrapper>;
+	friend class CGUI;
 
 public:
 
@@ -46,6 +51,8 @@ public:
 	void enqueReceived(ActiveHost& host);
 
 	void saveHostToDB(ActiveHost& host);
+
+	std::vector<boost::tuple<IPAddress, MacAdress, int>> cguiQuery();
 
 private:
 

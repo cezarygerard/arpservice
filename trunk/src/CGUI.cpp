@@ -10,40 +10,45 @@
 bool CGUI::stopCGUI_ = false;
 
 //Screen attributes
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
+const int SCREEN_WIDTH = 1000;
+const int SCREEN_HEIGHT = 800;
 const int SCREEN_BPP = 32;
 
 //The frame rate
 const int FRAMES_PER_SECOND = 20;
 
+SDL_Surface* screen = NULL;
+
+SDL_Surface* background = NULL;
+SDL_Surface* active = NULL;
+SDL_Surface* inactive = NULL;
+SDL_Surface *message = NULL; 
+
+//The font that's going to be used 
+TTF_Font *font = NULL; 
+
+//The color of the font 
+SDL_Color textColor = { 255, 255, 255 }; 
+
+
+
 
 SDL_Surface* CGUI::load_image( std::string filename )
 {
-    //The image that's loaded
     SDL_Surface* loadedImage = NULL;
-
-    //The optimized surface that will be used
     SDL_Surface* optimizedImage = NULL;
 
-    //Load the image
+    //Ladowanie grafiki
     loadedImage = IMG_Load( filename.c_str() );
 
-    //If the image loaded
     if( loadedImage != NULL )
     {
-        //Create an optimized surface
-        optimizedImage = SDL_DisplayFormat( loadedImage );
+        //dostosowanie grafiki do wyswietlenia z kanalem przezroczystosci
+        optimizedImage = SDL_DisplayFormatAlpha( loadedImage );
 
-        //Free the old surface
+        //Usuwanie zbednej powierzchni roboczej
         SDL_FreeSurface( loadedImage );
 
-        //If the surface was optimized
-        if( optimizedImage != NULL )
-        {
-            //Color key surface
-            SDL_SetColorKey( optimizedImage, SDL_SRCCOLORKEY, SDL_MapRGB( optimizedImage->format, 0, 0xFF, 0xFF ) );
-        }
     }
 
     //Return the optimized surface
@@ -75,14 +80,20 @@ bool CGUI::init()
     //Set up the screen
     screen = SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, SDL_SWSURFACE );
 
-    //If there was an error in setting up the screen
+	//If there was an error in setting up the screen
     if( screen == NULL )
     {
         return false;
     }
 
+	//Initialize SDL_ttf 
+	if( TTF_Init() == -1 ) 
+	{ 
+		return false; 
+	} 
+
     //Set the window caption
-    SDL_WM_SetCaption( "LAN GUI", NULL );
+    SDL_WM_SetCaption( "LAN StatusViewer", NULL );
 
     //If everything initialized fine
     return true;
@@ -91,42 +102,55 @@ bool CGUI::init()
 
 bool CGUI::load_files()
 {
-    //Load the back image
-    //back = load_image( "fadein.png" );
+    background = load_image( "../res/background.png" );
+    if( background == NULL )
+    {
+        return false;
+    }
 
-    ////If there was an error in loading the image
-    //if( back == NULL )
-    //{
-    //    return false;
-    //}
+	active= load_image( "../res/active.png" );
+    if( active == NULL )
+    {
+        return false;
+    }
 
-    ////Load the front image
-    //front = load_image( "fadeout.png" );
+	inactive = load_image( "../res/inactive.png" );
+    if( inactive == NULL )
+    {
+        return false;
+    }
 
-    ////If there was an error in loading the image
-    //if( front == NULL )
-    //{
-    //    return false;
-    //}
+	//Open the font 
+	font = TTF_OpenFont( "../res/verdana.ttf", 12 ); 
 
-    //If everything loaded fine
+	//If there was an error in loading the font 
+	if( font == NULL ) 
+	{ 
+		return false; 
+	} 
+
     return true;
 }
 
 void CGUI::clean_up()
 {
+	//Close the font that was used 
+	TTF_CloseFont( font ); 
+
     //Free the surfaces
- //   SDL_FreeSurface( back );
-  //  SDL_FreeSurface( front );
+    SDL_FreeSurface( background );
+	SDL_FreeSurface( inactive );
+	SDL_FreeSurface( active );
 
     //Quit SDL
     SDL_Quit();
+	stopCGUI_ = true;
 }
 
 void CGUI::refreshGUI()
 {
+
 	CTimer* timer = CTimer::getInstance();
-	CTimer::getInstance()->addObserver(*this, 1000/FRAMES_PER_SECOND);
 	int time;
 	int time1;
 
@@ -135,22 +159,20 @@ void CGUI::refreshGUI()
 		//Quit flag
 		bool quit = false;
 
-		//The front surface alpha value
-		int alpha = SDL_ALPHA_OPAQUE;
-
-		////The frame rate regulator
-		//Timer fps;
+		CTimer::getInstance()->addObserver(*this, 1000/FRAMES_PER_SECOND);
 
 		//Initialize
 		if( init() == false )
 		{
 			stopCGUI_ = true;
+			quit = true;
 		}
 
 		//Load the files
 		if( load_files() == false )
 		{
 			stopCGUI_ = true;
+			quit = true;
 		}
 
 		//While the user hasn't quit
@@ -167,47 +189,26 @@ void CGUI::refreshGUI()
 				{
 					//Quit the program
 					quit = true;
+					stopCGUI_ = true;
 				}
 			}
 
 			//Get the keystates
 			Uint8 *keystates = SDL_GetKeyState( NULL );
 
-			//If up is pressed
-			if( keystates[ SDLK_UP ] )
+			//Nacisniecie ENTER
+			if( keystates[ SDLK_RETURN ] )
 			{
-				//If alpha is not at maximum
-				if( alpha < SDL_ALPHA_OPAQUE )
-				{
-					//Increase alpha
-					alpha += 5;
-				}
+				///***///
 			}
 
-			//If down is pressed
-			if( keystates[ SDLK_DOWN ] )
-			{
-				//If alpha is not at minimum
-				if( alpha > SDL_ALPHA_TRANSPARENT )
-				{
-					//Decrease alpha
-					alpha -= 5;
-				}
-			}
-
-			//Set surface alpha
-			//SDL_SetAlpha( front, SDL_SRCALPHA, alpha );
-
-			//Apply the back
-			//apply_surface( 0, 0, back, screen );
-
-			//Apply the front
-			//apply_surface( 0, 0, front, screen );
+			createTable();
 
 			//Update the screen
 			if( SDL_Flip( screen ) == -1 )
 			{
 				stopCGUI_ = true;
+				quit = true;
 			}
 
 			//Cap the frame rate
@@ -215,22 +216,56 @@ void CGUI::refreshGUI()
 			time1 = CTimer::getInstance()->getTime()-time;
 			if(time1<1000/FRAMES_PER_SECOND)
 				CTimer::getInstance()->delay((1000/FRAMES_PER_SECOND) - time1);	
-
-			//if( fps.get_ticks() < 1000 / FRAMES_PER_SECOND )
-			//{
-			//	SDL_Delay( ( 1000 / FRAMES_PER_SECOND ) - fps.get_ticks() );
-			//}
 		}
 
-		//Clean up
 		clean_up();
-		CTimer::destroyInstance();
 	}
-
+	CTimer::destroyInstance();
 }
 
 void CGUI::startCGUI()
 {
 	stopCGUI_ = false;
 	threadCGUI_ = boost::thread(boost::bind(&CGUI::refreshGUI, this));
+}
+
+void CGUI::createTable()
+{
+	std::vector<boost::tuple<utils::IPAddress, utils::MacAdress, int>> active_hosts = CDataBaseWrapper::getInstance()->cguiQuery();
+	int i = 0;
+	int num_of_hosts = active_hosts.size();
+
+	int max_x = static_cast<int>(sqrt(static_cast<double>(num_of_hosts))+1);
+	int max_y = static_cast<int>(sqrt(static_cast<double>(num_of_hosts)));
+	int start_off_x, start_off_y;
+
+	start_off_x = (SCREEN_WIDTH - max_x*120)/2;
+	start_off_y = (SCREEN_HEIGHT - max_y*120)/2;
+
+	string s;
+	
+	//Apply the background
+	apply_surface( 0, 0, background, screen );
+	
+	for(int y = 0; y < max_y; y++)
+		for(int x = 0; x < max_x; x++)
+		{
+			if(i < num_of_hosts)
+			{
+				//std::cout << s;			
+				if(boost::get<2>(active_hosts[i]) > 0)
+				{
+					apply_surface( start_off_x + (x * 120), start_off_y + (y * 120), active, screen );
+				}
+				else if(boost::get<2>(active_hosts[i]) <= 0)
+				{
+					apply_surface( start_off_x + (x * 120), start_off_y + (y * 120), inactive, screen );
+				}
+				message = TTF_RenderText_Solid( font, utils::iptos(boost::get<0>(active_hosts[i])).c_str(), textColor ); 
+				apply_surface( start_off_x + (x * 120), start_off_y + active->h + (y * 120), message, screen );
+				message = TTF_RenderText_Solid( font, utils::macToS(boost::get<1>(active_hosts[i])).c_str(), textColor ); 
+				apply_surface( start_off_x + (x * 120), start_off_y + active->h + 12 + (y * 120), message, screen );
+			i++;
+			}
+		}
 }
