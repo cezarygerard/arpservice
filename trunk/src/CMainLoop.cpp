@@ -5,8 +5,7 @@ void CMainLoop::initMainLoop()
 	CNetworkAdapter::getInstance()->init(utils::init());
 	CNetworkAdapter::getInstance()->open();	
 	
-	CDataBaseWrapper::getInstance();
-	
+	CDataBaseWrapper::getInstance()->loadAllHosts();
 	CConnectionMgr::getInstance()->startListening();
 
 	CGUI::getInstance()->startCGUI();
