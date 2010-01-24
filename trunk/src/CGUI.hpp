@@ -35,13 +35,14 @@ public:
 	//Metoda uruchamia watek odbierania pakietow
 	void startCGUI();
 	void stopCGUI();
-	void refreshCGUIActiveHosts();
+	void refreshCGUIActiveHosts(std::map<utils::MacAdress,ActiveHost, utils::lessMAC>& m);
 	
 
 private:
 
 	boost::shared_ptr<SDL_Surface> loadImage(const std::string& filename);
 	boost::shared_ptr<TTF_Font> openFont(const std::string& fileName, int size);
+
 	void applySurface( int x, int y,  boost::shared_ptr<SDL_Surface> source,  SDL_Surface* destination, SDL_Rect* clip = NULL );
 	bool init();
 	bool loadFiles();
@@ -57,6 +58,9 @@ private:
 	};
 
 	std::vector<boost::tuple<utils::IPAddress, utils::MacAdress, int>> activeHosts_;
+
+	///do synchronizacji - zeby na raz kilku nie czytalo/zapisywali
+	boost::shared_mutex mutex_;
 
 	static bool stopCGUI_;
 	///Watek odbierania pakietow

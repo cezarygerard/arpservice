@@ -4,11 +4,14 @@ void CMainLoop::initMainLoop()
 {
 	CNetworkAdapter::getInstance()->init(utils::init());
 	CNetworkAdapter::getInstance()->open();	
+
+	CGUI::getInstance()->startCGUI();
 	
 	CDataBaseWrapper::getInstance()->loadAllHosts();
 	CConnectionMgr::getInstance()->startListening();
+	CDataBaseWrapper::getInstance()->startHandlingReceived();
 
-	CGUI::getInstance()->startCGUI();
+
 		
 }
 
@@ -17,17 +20,17 @@ void CMainLoop::enterMainLoop()
 
 	while(!quit_)	
 	{	
-		CDataBaseWrapper::getInstance()->handleReceived();
-		boost::this_thread::sleep(boost::posix_time::seconds(1));
+		//CDataBaseWrapper::getInstance()->handleReceived();
+		
 	}
 }
 
 void CMainLoop::endMainLoop()
 {
-	CGUI::destroyInstance();
 	CDataBaseWrapper::destroyInstance();
 	CNetworkAdapter::destroyInstance();
 	CConnectionMgr::destroyInstance(); 
+	CGUI::destroyInstance();
 }
 
 void CMainLoop::quitNow()

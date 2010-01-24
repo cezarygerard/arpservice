@@ -220,6 +220,8 @@ void CGUI::refreshGUI()
 
 void CGUI::createTable()
 {
+	boost::shared_lock<boost::shared_mutex> lock(mutex_);
+
 	int i = 0;
 	int num_of_hosts = activeHosts_.size();
 
@@ -289,7 +291,15 @@ void CGUI::stopCGUI()
 }
 
 
-void CGUI::refreshCGUIActiveHosts()
+void CGUI::refreshCGUIActiveHosts(std::map<utils::MacAdress,ActiveHost, utils::lessMAC>& m)
 {
-	activeHosts_ = CDataBaseWrapper::getInstance()->cguiQuery();
+	boost::unique_lock<boost::shared_mutex> write_lock(mutex_);
+
+		std::vector<boost::tuple<IPAddress, MacAdress, int>> v;
+
+	for(std::map<utils::MacAdress,ActiveHost, utils::lessMAC>::iterator it = m.begin(); it != m.end(); ++it)
+	{
+		v.push_back(boost::make_tuple(it->second.ip, it->second.mac, it->second.ttl));
+	}
+	activeHosts_ = v;
 }

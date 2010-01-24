@@ -44,6 +44,12 @@ namespace utils
 		unsigned char m[6];
 	};
 
+///klasa potrzebna do porownywania adresow mac, aby mogly byc kluczem w std::map
+struct lessMAC// : public binary_function<MacAdress, MacAdress, bool>
+{	
+	bool operator()(const MacAdress& m1, const MacAdress& m2) const;
+};
+
 	// ARP
 	struct ARPHeader
 	{

@@ -33,7 +33,7 @@ class CDataBaseWrapper;
 class ActiveHost;
 struct lessMAC;
 
-typedef boost::shared_ptr< map<utils::MacAdress,ActiveHost,lessMAC> > HostsMapPtr;
+typedef boost::shared_ptr< map<utils::MacAdress,ActiveHost,utils::lessMAC> > HostsMapPtr;
 
 class CConnectionMgr : public CSingleton<CConnectionMgr>//, public CTimerObserver 
 {

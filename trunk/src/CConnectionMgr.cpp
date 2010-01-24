@@ -138,8 +138,8 @@ void CConnectionMgr::sendInfo(TCPsocket csd_)
 
 	boost::mutex::scoped_lock scoped_lock(mutex);
 	cout<<"CNetwork::sendInfo()"<<endl;
-	map<utils::MacAdress,ActiveHost, lessMAC>::iterator it;
-	map<utils::MacAdress,ActiveHost, lessMAC> * activeHosts = &(CDataBaseWrapper::getInstance()->activeHosts_);
+	map<utils::MacAdress,ActiveHost, utils::lessMAC>::iterator it;
+	map<utils::MacAdress,ActiveHost, utils::lessMAC> * activeHosts = &(CDataBaseWrapper::getInstance()->activeHosts_);
 	
 	for(it = activeHosts->begin(); it != activeHosts->end(); it++ )
 	{
@@ -179,7 +179,7 @@ void CConnectionMgr::sendInfo(TCPsocket csd_)
 
 HostsMapPtr CConnectionMgr::receiveInfo(TCPsocket csd_)
 {
-	HostsMapPtr hostsMap = HostsMapPtr(new std::map<utils::MacAdress, ActiveHost, lessMAC>);
+	HostsMapPtr hostsMap = HostsMapPtr(new std::map<utils::MacAdress, ActiveHost, utils::lessMAC>);
 	boost::mutex::scoped_lock scoped_lock(mutex);
 	{
 		bool quit = false;
