@@ -14,7 +14,6 @@
 
 #include <string>
 #include <map>
-#include <boost/tuple/tuple.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <queue>
@@ -32,11 +31,7 @@ using namespace std;
 using namespace utils;
 
 
-///klasa potrzebna do porownywania adresow mac, aby mogly byc kluczem w std::map
-struct lessMAC// : public binary_function<MacAdress, MacAdress, bool>
-{	
-	bool operator()(const MacAdress& m1, const MacAdress& m2) const;
-};
+
 
 ///klasa przechowuje aktywne hosty i zapisuje do bazy danych.
 class CDataBaseWrapper : public CSingleton<CDataBaseWrapper>
@@ -50,6 +45,8 @@ public:
 
 	void handleReceived();
 
+	void handleReceivedInThread();
+
 	void enqueReceived(ActiveHost& host);
 
 	void saveHostToDB(ActiveHost& host);
@@ -58,6 +55,8 @@ public:
 
 	//Laduje wszystkie histroryczne hosty
 	void loadAllHosts();
+
+	void startHandlingReceived();
 
 private:
 
@@ -72,10 +71,15 @@ private:
 	queue <ActiveHost> received_;
 
 	///kolejka aktywnych hostow
-	std::map<utils::MacAdress,ActiveHost, lessMAC> activeHosts_;
+	std::map<utils::MacAdress,ActiveHost, utils::lessMAC> activeHosts_;
 
 	///do synchronizacji - zeby na raz kilku nie czytalo/zapisywali
 	boost::mutex mutex_;
+
+	static bool stopHandleReceivedThread_;
+
+	///Watek odbierania pakietow
+	boost::thread handleReceivedThread_;
 
 	///wskaünik na baze danych z ktora sie komunikujemy
 	sqlite3 * database;

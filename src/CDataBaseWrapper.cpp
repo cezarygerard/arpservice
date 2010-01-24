@@ -8,18 +8,8 @@
 
 #include "CDataBaseWrapper.hpp"
 
+bool CDataBaseWrapper::stopHandleReceivedThread_=false;
 
-bool lessMAC::operator()(const MacAdress& m1, const MacAdress& m2)const
-{
-	for(int i = 0; i<6; i++)
-	{
-		if(m1.m[i] < m2.m[i])
-			return true;
-		if(m1.m[i] > m2.m[i])
-			return false;
-	}	
-	return false;
-}
 
 CDataBaseWrapper::CDataBaseWrapper()
 {
@@ -35,6 +25,7 @@ CDataBaseWrapper::CDataBaseWrapper()
 
 CDataBaseWrapper::~CDataBaseWrapper()
 {
+	stopHandleReceivedThread_ = true;
 	saveAllHosts();
 	sqlite3_close(database);
 	cout<<"CDataBaseWrapper::~CDataBaseWrapper() zamykanie"<<endl;
@@ -42,9 +33,10 @@ CDataBaseWrapper::~CDataBaseWrapper()
 
 void CDataBaseWrapper::handleReceived()
 {
+	
 	boost::mutex::scoped_lock scoped_lock(mutex_);
 
-	map<utils::MacAdress,ActiveHost, lessMAC>::iterator it;
+	map<utils::MacAdress,ActiveHost, utils::lessMAC>::iterator it;
 	for(it = activeHosts_.begin(); it != activeHosts_.end(); it++ )
 	{
 		if((*it).second.ttl>0)
@@ -64,7 +56,7 @@ void CDataBaseWrapper::handleReceived()
 	while (!received_.empty())
 	{
 		ActiveHost ah = received_.front();
-		map<utils::MacAdress,ActiveHost, lessMAC>::iterator it;
+		map<utils::MacAdress,ActiveHost, utils::lessMAC>::iterator it;
 		it = activeHosts_.find(ah.mac);
 		
 		if(it == activeHosts_.end())
@@ -89,20 +81,24 @@ void CDataBaseWrapper::handleReceived()
 		//	utils::MacAdress currentMac = received_.front().mac;
 	//	activeHosts_[currentMac].		
 	}
-	CGUI::getInstance()->refreshCGUIActiveHosts();
+	CGUI::getInstance()->refreshCGUIActiveHosts(activeHosts_);
 }
 
-const std::vector<boost::tuple<IPAddress, MacAdress, int>> CDataBaseWrapper::cguiQuery() 
+void CDataBaseWrapper::handleReceivedInThread()
 {
-	std::vector<boost::tuple<IPAddress, MacAdress, int>> v;
-
-	for(std::map<utils::MacAdress,ActiveHost, lessMAC>::iterator it = activeHosts_.begin(); it != activeHosts_.end(); ++it)
+	while(!stopHandleReceivedThread_)
 	{
-		v.push_back(boost::make_tuple(it->second.ip, it->second.mac, it->second.ttl));
+		handleReceived();
+		boost::this_thread::sleep(boost::posix_time::seconds(1));
 	}
-	
-	return v;
 }
+
+//const std::vector<boost::tuple<IPAddress, MacAdress, int>> CDataBaseWrapper::cguiQuery() 
+//{
+//
+//	
+//	return v;
+//}
 
 void CDataBaseWrapper::enqueReceived(ActiveHost& host)
 {
@@ -160,7 +156,7 @@ void CDataBaseWrapper::saveAllHosts()
 {
 	boost::mutex::scoped_lock scoped_lock(mutex_);
 
-	map<utils::MacAdress,ActiveHost, lessMAC>::iterator it;
+	map<utils::MacAdress,ActiveHost, utils::lessMAC>::iterator it;
 	
 	for(it = activeHosts_.begin(); it != activeHosts_.end(); it++ )
 	{
@@ -172,4 +168,16 @@ void CDataBaseWrapper::saveAllHosts()
 			saveHostToDB((*it).second);
 		}	
 	}
+}
+
+void CDataBaseWrapper::startHandlingReceived()
+{
+
+//najpierw trzeba zatrzymac watek, jezeli dziala
+stopHandleReceivedThread_ = true;
+handleReceivedThread_.join();
+
+stopHandleReceivedThread_ = false;
+handleReceivedThread_ = boost::thread(boost::bind(&CDataBaseWrapper::handleReceivedInThread, this));
+
 }
