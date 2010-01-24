@@ -17,47 +17,63 @@ const int SCREEN_BPP = 32;
 //The frame rate
 const int FRAMES_PER_SECOND = 20;
 
-SDL_Surface* screen = NULL;
+SDL_Surface* screen;  //boost::shared_ptr<SDL_Surface>
 
-SDL_Surface* background = NULL;
-SDL_Surface* active = NULL;
-SDL_Surface* inactive = NULL;
-SDL_Surface *message = NULL; 
+boost::shared_ptr<SDL_Surface> background;
+boost::shared_ptr<SDL_Surface> active;
+boost::shared_ptr<SDL_Surface> inactive;
+boost::shared_ptr<SDL_Surface> message; 
 
 //The font that's going to be used 
-TTF_Font *font = NULL; 
-TTF_Font *font_large = NULL;
+boost::shared_ptr<TTF_Font> font; 
+boost::shared_ptr<TTF_Font> font_large;
 
 //The color of the font 
 SDL_Color textColor = { 255, 255, 255 }; 
 
-
-
-
-SDL_Surface* CGUI::load_image( std::string filename )
+void SafeFreeSurface(SDL_Surface* surface)
 {
-    SDL_Surface* loadedImage = NULL;
-    SDL_Surface* optimizedImage = NULL;
+		// boost::shared_ptr wywoluje podany przez uzytkownika destruktor
+		// nawet, gdy przechowywany wskaznik nie jest prawidlowy
+	if (surface)
+		SDL_FreeSurface(surface);
+}
 
-    //Ladowanie grafiki
-    loadedImage = IMG_Load( filename.c_str() );
-
-    if( loadedImage != NULL )
-    {
-        //dostosowanie grafiki do wyswietlenia z kanalem przezroczystosci
-        optimizedImage = SDL_DisplayFormatAlpha( loadedImage );
-
-        //Usuwanie zbednej powierzchni roboczej
-        SDL_FreeSurface( loadedImage );
-
-    }
-
-    //Return the optimized surface
-    return optimizedImage;
+void SafeCloseFont(TTF_Font* font)
+{
+    if (font)
+        TTF_CloseFont(font);
 }
 
 
-void CGUI::apply_surface( int x, int y, SDL_Surface* source, SDL_Surface* destination, SDL_Rect* clip )
+boost::shared_ptr<SDL_Surface> CGUI::loadImage(const std::string& filename)
+{
+    boost::shared_ptr<SDL_Surface> loadedImage(
+            IMG_Load(filename.c_str()),
+            boost::bind(&SafeFreeSurface, _1));
+    if (!loadedImage.get())
+        throw std::runtime_error(IMG_GetError());
+
+	//dostosowanie grafiki do wyswietlenia z kanalem przezroczystosci
+    boost::shared_ptr<SDL_Surface> optimizedImage( 
+			SDL_DisplayFormatAlpha(loadedImage.get()), 
+			boost::bind(&SafeFreeSurface, _1) ); 
+
+    return optimizedImage;
+}
+
+boost::shared_ptr<TTF_Font> CGUI::openFont(const std::string& fileName, int size)
+{
+    boost::shared_ptr<TTF_Font> font(
+            TTF_OpenFont(fileName.c_str(), size),
+            boost::bind(&SafeCloseFont, _1));
+    if (!font.get())
+        throw std::runtime_error(TTF_GetError());
+    return font;
+}
+
+
+void CGUI::applySurface( int x, int y,  boost::shared_ptr<SDL_Surface> source, SDL_Surface* destination, SDL_Rect* clip )
 {
     //Holds offsets
     SDL_Rect offset;
@@ -67,7 +83,7 @@ void CGUI::apply_surface( int x, int y, SDL_Surface* source, SDL_Surface* destin
     offset.y = y;
 
     //Blit
-    SDL_BlitSurface( source, clip, destination, &offset );
+    SDL_BlitSurface( source.get(), clip, destination, &offset );
 }
 
 bool CGUI::init()
@@ -79,7 +95,7 @@ bool CGUI::init()
     }
 
     //Set up the screen
-    screen = SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, SDL_SWSURFACE );
+    screen = SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, SDL_SWSURFACE );//boost::shared_ptr<SDL_Surface>(SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, SDL_SWSURFACE ), boost::bind(&SafeFreeSurface, _1) ) ;   
 
 	//If there was an error in setting up the screen
     if( screen == NULL )
@@ -101,32 +117,32 @@ bool CGUI::init()
 }
 
 
-bool CGUI::load_files()
+bool CGUI::loadFiles()
 {
-    background = load_image( "../res/background.png" );
-    if( background == NULL )
+    background = loadImage( "../res/background.png" );
+    if( background.get() == NULL )
     {
         return false;
     }
 
-	active= load_image( "../res/active.png" );
-    if( active == NULL )
+	active = loadImage( "../res/active.png" );
+    if( active.get() == NULL )
     {
         return false;
     }
 
-	inactive = load_image( "../res/inactive.png" );
-    if( inactive == NULL )
+	inactive = loadImage( "../res/inactive.png" );
+    if( inactive.get() == NULL )
     {
         return false;
     }
 
 	//Open the font 
-	font = TTF_OpenFont( "../res/verdana.ttf", 12 ); 
+	font = openFont( "../res/verdana.ttf", 12 ); 
 
-	font_large = TTF_OpenFont("../res/verdana.ttf", 24 );
+	font_large = openFont("../res/verdana.ttf", 24 );
 	//If there was an error in loading the font 
-	if( font == NULL || font_large == NULL ) 
+	if( font.get() == NULL || font_large.get() == NULL ) 
 	{ 
 		return false; 
 	} 
@@ -134,16 +150,8 @@ bool CGUI::load_files()
     return true;
 }
 
-void CGUI::clean_up()
+void CGUI::cleanUp()
 {
-	//Close the font that was used 
-	TTF_CloseFont( font ); 
-	TTF_CloseFont( font_large);
-    //Free the surfaces
-    SDL_FreeSurface( background );
-	SDL_FreeSurface( inactive );
-	SDL_FreeSurface( active );
-
     //Quit SDL
     SDL_Quit();
 	stopCGUI_ = true;
@@ -161,7 +169,7 @@ void CGUI::refreshGUI()
 		}
 
 		//Load the files
-		if( load_files() == false )
+		if( loadFiles() == false )
 		{
 			stopCGUI_ = true;
 		}
@@ -204,7 +212,7 @@ void CGUI::refreshGUI()
 			boost::this_thread::sleep(boost::posix_time::millisec(1000/FRAMES_PER_SECOND));
 		}
 
-		clean_up();
+		cleanUp();
 	}
 
 }
@@ -223,16 +231,16 @@ void CGUI::createTable()
 	start_off_x = (SCREEN_WIDTH - max_x*120)/2;
 	start_off_y = (SCREEN_HEIGHT + 100 - max_y*120)/2;
 
-	apply_surface( 0, 0, background, screen );
+	applySurface( 0, 0, background, screen );
 
-	message = TTF_RenderText_Solid( font_large, "Monitor sieci LAN", textColor ); 
-	apply_surface( SCREEN_WIDTH/2-100, 60, message, screen );
+	message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font_large.get(), "Monitor sieci LAN", textColor ), boost::bind(&SafeFreeSurface, _1) ) ;   
+	applySurface( SCREEN_WIDTH/2-100, 60, message, screen );
 
 	//Uspokoj uzytkownika tekstem o oczekiwaniu
 	if(num_of_hosts == 0)
 	{
-		message = TTF_RenderText_Solid( font, "Kompletowanie danych...", textColor ); 
-		apply_surface( start_off_x, start_off_y, message, screen );
+		message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font.get(), "Kompletowanie danych...", textColor ), boost::bind(&SafeFreeSurface, _1) ) ;   
+		applySurface( start_off_x, start_off_y, message, screen );
 	}
 	for(int y = 0; y < max_y; y++)
 		for(int x = 0; x < max_x; x++)
@@ -242,28 +250,28 @@ void CGUI::createTable()
 				//Zaleznie od TTL pokaz odpowiednia ikone
 				if(boost::get<2>(activeHosts_[i]) > 0)
 				{
-					apply_surface( start_off_x + (x * 120), start_off_y + (y * 120), active, screen );
+					applySurface( start_off_x + (x * 120), start_off_y + (y * 120), active, screen );
 				}
 				else if(boost::get<2>(activeHosts_[i]) <= 0)
 				{
-					apply_surface( start_off_x + (x * 120), start_off_y + (y * 120), inactive, screen );
+					applySurface( start_off_x + (x * 120), start_off_y + (y * 120), inactive, screen );
 				}
 				// Wypisz IP
-				message = TTF_RenderText_Solid( font, utils::iptos(boost::get<0>(activeHosts_[i])).c_str(), textColor ); 
-				apply_surface( start_off_x + (x * 120), start_off_y + active->h + (y * 120), message, screen );
+				message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font.get(), utils::iptos(boost::get<0>(activeHosts_[i])).c_str(), textColor ), boost::bind(&SafeFreeSurface, _1) ) ;   
+				applySurface( start_off_x + (x * 120), start_off_y + active->h + (y * 120), message, screen );
 				// Wypisz MAC
-				message = TTF_RenderText_Solid( font, utils::macToS(boost::get<1>(activeHosts_[i])).c_str(), textColor ); 
-				apply_surface( start_off_x + (x * 120), start_off_y + active->h + 12 + (y * 120), message, screen );
+				message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font.get(), utils::macToS(boost::get<1>(activeHosts_[i])).c_str(), textColor ), boost::bind(&SafeFreeSurface, _1) ) ;   
+				applySurface( start_off_x + (x * 120), start_off_y + active->h + 12 + (y * 120), message, screen );
 			}
 			if(i == num_of_hosts)
 			{
-				apply_surface( start_off_x + (x * 120), start_off_y + (y * 120), active, screen );
+				applySurface( start_off_x + (x * 120), start_off_y + (y * 120), active, screen );
 				// Wypisz IP
-				message = TTF_RenderText_Solid( font, utils::iptos(CNetworkAdapter::getInstance()->getIPandMac().first).c_str(), textColor ); 
-				apply_surface( start_off_x + (x * 120), start_off_y + active->h + (y * 120), message, screen );
+				message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font.get(), utils::iptos(CNetworkAdapter::getInstance()->getIPandMac().first).c_str(), textColor ), boost::bind(&SafeFreeSurface, _1) ) ;  
+				applySurface( start_off_x + (x * 120), start_off_y + active->h + (y * 120), message, screen );
 				// Wypisz MAC
-				message = TTF_RenderText_Solid( font, utils::macToS(CNetworkAdapter::getInstance()->getIPandMac().second).c_str(), textColor ); 
-				apply_surface( start_off_x + (x * 120), start_off_y + active->h + 12 + (y * 120), message, screen );
+				message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font.get(), utils::macToS(CNetworkAdapter::getInstance()->getIPandMac().second).c_str(), textColor ), boost::bind(&SafeFreeSurface, _1) ) ; 
+				applySurface( start_off_x + (x * 120), start_off_y + active->h + 12 + (y * 120), message, screen );
 			}
 			i++;
 		}

@@ -15,6 +15,8 @@
 #include <math.h>
 #include <vector>
 
+#include <boost/smart_ptr.hpp>
+#include <boost/bind.hpp>
 #include <boost/thread.hpp>
 #include <boost/tuple/tuple.hpp>
 
@@ -38,16 +40,21 @@ public:
 
 private:
 
-	SDL_Surface *load_image( std::string filename );
-	void apply_surface( int x, int y, SDL_Surface* source, SDL_Surface* destination, SDL_Rect* clip = NULL );
+	boost::shared_ptr<SDL_Surface> loadImage(const std::string& filename);
+	boost::shared_ptr<TTF_Font> openFont(const std::string& fileName, int size);
+	void applySurface( int x, int y,  boost::shared_ptr<SDL_Surface> source,  SDL_Surface* destination, SDL_Rect* clip = NULL );
 	bool init();
-	bool load_files();
-	void clean_up();
+	bool loadFiles();
+	void cleanUp();
 	void refreshGUI();
 	void createTable();
 
-	CGUI() {};
-	~CGUI() {};
+	CGUI() {
+		std::cout<<"CGUI::CGUI() tworzenie"<< std::endl;
+	};
+	~CGUI() {
+		std::cout<<"CGUI::~CGUI() zamykanie"<< std::endl;
+	};
 
 	std::vector<boost::tuple<utils::IPAddress, utils::MacAdress, int>> activeHosts_;
 

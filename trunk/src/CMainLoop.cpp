@@ -25,11 +25,10 @@ void CMainLoop::enterMainLoop()
 
 void CMainLoop::endMainLoop()
 {
-
+	CGUI::destroyInstance();
 	CDataBaseWrapper::destroyInstance();
 	CNetworkAdapter::destroyInstance();
 	CConnectionMgr::destroyInstance(); 
-	CGUI::destroyInstance();
 }
 
 void CMainLoop::quitNow()
