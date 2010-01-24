@@ -5,7 +5,7 @@ void CMainLoop::initMainLoop()
 	CNetworkAdapter::getInstance()->init(utils::init());
 	CNetworkAdapter::getInstance()->open();	
 
-	CGUI::getInstance()->startCGUI();
+	CGViewer::getInstance()->startCGViewer();
 	
 	CDataBaseWrapper::getInstance()->loadAllHosts();
 	CConnectionMgr::getInstance()->startListening();
@@ -20,8 +20,9 @@ void CMainLoop::enterMainLoop()
 
 	while(!quit_)	
 	{	
+
 		//CDataBaseWrapper::getInstance()->handleReceived();
-		boost::this_thread::sleep(boost::posix_time::seconds(1));
+		boost::this_thread::sleep(boost::posix_time::seconds(interval_));
 	}
 }
 
@@ -30,7 +31,7 @@ void CMainLoop::endMainLoop()
 	CDataBaseWrapper::destroyInstance();
 	CNetworkAdapter::destroyInstance();
 	CConnectionMgr::destroyInstance(); 
-	CGUI::destroyInstance();
+	CGViewer::destroyInstance();
 }
 
 void CMainLoop::quitNow()

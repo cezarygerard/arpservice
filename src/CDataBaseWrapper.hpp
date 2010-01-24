@@ -22,7 +22,7 @@
 #include "utils.hpp" 
 #include "CSingleton.hpp"
 #include "ActiveHost.hpp"
-#include "CGUI.hpp"
+#include "CGViewer.hpp"
 
 //#include "../sqlite/sqlite3ext.h"
 //#include "sqlite3.h"
@@ -50,8 +50,6 @@ public:
 	void enqueReceived(ActiveHost& host);
 
 	void saveHostToDB(ActiveHost& host);
-
-	const std::vector<boost::tuple<IPAddress, MacAdress, int>> cguiQuery();
 
 	//Laduje wszystkie histroryczne hosty
 	void loadAllHosts();

@@ -272,7 +272,7 @@ void CNetworkAdapter::captureARPs()
 					/* Timeout elapsed */
 					continue;
 
-				arp_h = (utils::ARPHeader *)(pkt_data + 14);
+				arp_h = (utils::ARPHeader *)(pkt_data + utils::ETH_HEADER_OFFSET);
 				
 				// jezeli dany arp jest odpowiedzia, obsluz
 				if(arp_h->oper == 512) 
@@ -285,8 +285,8 @@ void CNetworkAdapter::captureARPs()
 					ah.mac = arp_h->sha;
 					CDataBaseWrapper::getInstance()->enqueReceived(ah);
 				}
+			boost::this_thread::sleep(boost::posix_time::milliseconds(10));
 			}
-		    
 			if(res == -1){
 				cerr << "CNetworkAdapter::captureARPs: Blad przy odbieraniu pakietu!!" << endl;
 				stopCaptureARPs_ = true;

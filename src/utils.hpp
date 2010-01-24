@@ -37,7 +37,19 @@ namespace utils
 	const int MAX_TTL = 7 * ARP_SEND_PERIOD;
 	const int RECEIVER_SLEEP_PERIOD = 1; //ms
 	const int HANDLE_SLEEP_PERIOD = 1; //seconds
-	
+	const int ETH_HEADER_OFFSET = 14; //bytes
+
+	const int SCREEN_WIDTH = 1000; //px
+	const int SCREEN_HEIGHT = 800; //px
+	const int SCREEN_BPP = 32;
+
+	const int PICTURE_OFFSET = 120; //px
+
+	const int X_LIMIT = 8; 
+	const int Y_LIMIT = 6;
+
+	const int FRAMES_PER_SECOND = 20; // dzielnik
+
 	struct IPAddress
 	{
 		unsigned char ip[4];
