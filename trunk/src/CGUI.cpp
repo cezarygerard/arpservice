@@ -226,7 +226,7 @@ void CGUI::createTable()
 	int num_of_hosts = activeHosts_.size();
 
 	int max_x = static_cast<int>(sqrt(static_cast<double>(num_of_hosts))+1)%9;
-	int max_y = static_cast<int>(sqrt(static_cast<double>(num_of_hosts)))%7;
+	int max_y = static_cast<int>(sqrt(static_cast<double>(num_of_hosts))+1)%7;
 	
 	int start_off_x, start_off_y;
 
@@ -295,7 +295,7 @@ void CGUI::refreshCGUIActiveHosts(std::map<utils::MacAdress,ActiveHost, utils::l
 {
 	boost::unique_lock<boost::shared_mutex> write_lock(mutex_);
 
-		std::vector<boost::tuple<IPAddress, MacAdress, int>> v;
+		std::vector<boost::tuple<IPAddress, MacAdress, int> > v;
 
 	for(std::map<utils::MacAdress,ActiveHost, utils::lessMAC>::iterator it = m.begin(); it != m.end(); ++it)
 	{
