@@ -8,7 +8,7 @@
 
 #include "ActiveHost.hpp"
 
-ActiveHost::ActiveHost() : ttl(5), start("0000-00-00-00-00-00"), stop("0000-00-00-00-00-00")
+ActiveHost::ActiveHost() : ttl(MAX_TTL), start("0000-00-00-00-00-00"), stop("0000-00-00-00-00-00")
 
 {
 	ip;

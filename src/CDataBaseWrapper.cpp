@@ -68,15 +68,19 @@ void CDataBaseWrapper::handleReceived()
 		it = activeHosts_.find(ah.mac);
 		
 		if(it == activeHosts_.end())
-		{//hosta nie ma na liscie aktywnych
+		{//hosta nie ma na liscie 
 			ah.start = utils::getTime();
 			ah.stop = utils::getTime();
 			activeHosts_.insert ( pair<utils::MacAdress,ActiveHost>(ah.mac,ah) );
 
 		}
 		else
-		{//host jest na liscie aktywnych
-			(*it).second.ttl = 5;
+		{//host jest na liscie 
+			if((*it).second.ttl <=0)
+			{
+				(*it).second.start = utils::getTime();
+			}
+			(*it).second.ttl = utils::MAX_TTL;
 			(*it).second.stop = utils::getTime();
 			(*it).second.ip = ah.ip;
 		}
