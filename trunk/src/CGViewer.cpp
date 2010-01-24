@@ -1,7 +1,7 @@
 /**
 * @author Sebastian £uczak
 * @date 2010.01.23
-* @version 0.5
+* @version 0.9
 *
 *	
 */
@@ -12,29 +12,30 @@ bool CGViewer::stopCGViewer_ = false;
 
 SDL_Surface* screen;  
 
+//powierzchnie wyrysowywane
 boost::shared_ptr<SDL_Surface> background;
 boost::shared_ptr<SDL_Surface> active;
 boost::shared_ptr<SDL_Surface> inactive;
 boost::shared_ptr<SDL_Surface> message; 
 
-//The font that's going to be used 
+//Fonty
 boost::shared_ptr<TTF_Font> font; 
 boost::shared_ptr<TTF_Font> font_large;
 
-//The color of the font 
+//Kolory czcionek
 SDL_Color textColor = { 255, 255, 255 }; 
 SDL_Color textColorRed = { 255, 0, 0 }; 
 
 void SafeFreeSurface(SDL_Surface* surface)
 {
-		// boost::shared_ptr wywoluje podany przez uzytkownika destruktor
-		// nawet, gdy przechowywany wskaznik nie jest prawidlowy
+	//dealokator SDL_Surface
 	if (surface)
 		SDL_FreeSurface(surface);
 }
 
 void SafeCloseFont(TTF_Font* font)
 {
+	//dealokator SDL_TTF
     if (font)
         TTF_CloseFont(font);
 }
@@ -69,44 +70,40 @@ boost::shared_ptr<TTF_Font> CGViewer::openFont(const std::string& fileName, int 
 
 void CGViewer::applySurface( int x, int y,  boost::shared_ptr<SDL_Surface> source, SDL_Surface* destination, SDL_Rect* clip )
 {
-    //Holds offsets
     SDL_Rect offset;
-
-    //Get offsets
+    
     offset.x = x;
     offset.y = y;
 
-    //Blit
+    //wyrysowanie
     SDL_BlitSurface( source.get(), clip, destination, &offset );
 }
 
 bool CGViewer::init()
 {
-    //Initialize all SDL subsystems
+    //Inicjalizacja podsystemow
     if( SDL_Init( SDL_INIT_EVERYTHING ) == -1 )
     {
         return false;
     }
 
-    //Set up the screen
-    screen = SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, SDL_SWSURFACE );//boost::shared_ptr<SDL_Surface>(SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, SDL_SWSURFACE ), boost::bind(&SafeFreeSurface, _1) ) ;   
+    //Inicjalizacja powierzchni wyswietlania
+    screen = SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, SDL_SWSURFACE );
 
-	//If there was an error in setting up the screen
     if( screen == NULL )
     {
         return false;
     }
 
-	//Initialize SDL_ttf 
+	//inicjalizacja podsystemu fontow
 	if( TTF_Init() == -1 ) 
 	{ 
 		return false; 
 	} 
 
-    //Set the window caption
-    SDL_WM_SetCaption( "LAN StatusViewer", NULL );
+	// Etykieta okna
+    SDL_WM_SetCaption( "Monitor sieci LAN", NULL );
 
-    //If everything initialized fine
     return true;
 }
 
@@ -131,11 +128,11 @@ bool CGViewer::loadFiles()
         return false;
     }
 
-	//Open the font 
+	// ladowanie czcionek
 	font = openFont( "../res/verdana.ttf", 12 ); 
 
 	font_large = openFont("../res/verdana.ttf", 24 );
-	//If there was an error in loading the font 
+	
 	if( font.get() == NULL || font_large.get() == NULL ) 
 	{ 
 		return false; 
@@ -146,7 +143,7 @@ bool CGViewer::loadFiles()
 
 void CGViewer::cleanUp()
 {
-    //Quit SDL
+	//Zamykanie SDL
     SDL_Quit();
 	stopCGViewer_ = true;
 }
@@ -156,35 +153,33 @@ void CGViewer::refreshGUI()
 	while(!stopCGViewer_)
 	{
 
-		//Initialize
+
 		if( init() == false )
 		{
 			stopCGViewer_ = true;
 		}
 
-		//Load the files
 		if( loadFiles() == false )
 		{
 			stopCGViewer_ = true;
 		}
 
-		//While the user hasn't quit
+		//petla watku
 		while( !stopCGViewer_ )
 		{
 
-			//While there's events to handle
+			//wychwytywanie zdarzen
 			while( SDL_PollEvent( &event ) )
 			{
-				//If the user has Xed out the window
+				
 				if( event.type == SDL_QUIT )
 				{
-					//Quit the program
+					//Wyjdz z aplikacji
 					stopCGViewer_ = true;
 					CMainLoop::getInstance()->quitNow();
 				}
 			}
 
-			//Get the keystates
 			Uint8 *keystates = SDL_GetKeyState( NULL );
 
 			//Nacisniecie ENTER
@@ -196,13 +191,12 @@ void CGViewer::refreshGUI()
 
 			createTable();
 
-			//Update the screen
+			// zamiana buforow
 			if( SDL_Flip( screen ) == -1 )
 			{
 				stopCGViewer_ = true;
 			}
 
-			//Cap the frame rate
 			boost::this_thread::sleep(boost::posix_time::millisec(1000/FRAMES_PER_SECOND));
 		}
 
