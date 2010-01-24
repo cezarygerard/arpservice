@@ -87,7 +87,7 @@ void CDataBaseWrapper::handleReceived()
 		//	utils::MacAdress currentMac = received_.front().mac;
 	//	activeHosts_[currentMac].		
 	}
-	CGUI::getInstance()->refreshCGUIActiveHosts(activeHosts_);
+	CGViewer::getInstance()->refreshCGViewerActiveHosts(activeHosts_);
 }
 
 void CDataBaseWrapper::handleReceivedInThread()
@@ -99,12 +99,6 @@ void CDataBaseWrapper::handleReceivedInThread()
 	}
 }
 
-//const std::vector<boost::tuple<IPAddress, MacAdress, int>> CDataBaseWrapper::cguiQuery() 
-//{
-//
-//	
-//	return v;
-//}
 
 void CDataBaseWrapper::enqueReceived(ActiveHost& host)
 {

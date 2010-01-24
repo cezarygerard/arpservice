@@ -6,8 +6,8 @@
 *	
 */
 
-#ifndef	CGUI_H
-#define CGUI_H
+#ifndef	CGViewer_H
+#define CGViewer_H
 
 #include "SDL.h"
 #include "SDL_image.h"
@@ -26,16 +26,18 @@
 
 #include "utils.hpp"
 
-class CGUI : public CSingleton<CGUI>
+using namespace utils;
+
+class CGViewer : public CSingleton<CGViewer>
 {
-	friend CSingleton<CGUI>;
+	friend CSingleton<CGViewer>;
 
 public:
 
 	//Metoda uruchamia watek odbierania pakietow
-	void startCGUI();
-	void stopCGUI();
-	void refreshCGUIActiveHosts(std::map<utils::MacAdress,ActiveHost, utils::lessMAC>& m);
+	void startCGViewer();
+	void stopCGViewer();
+	void refreshCGViewerActiveHosts(std::map<utils::MacAdress,ActiveHost, utils::lessMAC>& m);
 	
 
 private:
@@ -50,11 +52,11 @@ private:
 	void refreshGUI();
 	void createTable();
 
-	CGUI() {
-		std::cout<<"CGUI::CGUI() tworzenie"<< std::endl;
+	CGViewer() {
+		std::cout<<"CGViewer::CGViewer() tworzenie"<< std::endl;
 	};
-	~CGUI() {
-		std::cout<<"CGUI::~CGUI() zamykanie"<< std::endl;
+	~CGViewer() {
+		std::cout<<"CGViewer::~CGViewer() zamykanie"<< std::endl;
 	};
 
 	std::vector<boost::tuple<utils::IPAddress, utils::MacAdress, int>> activeHosts_;
@@ -62,9 +64,9 @@ private:
 	///do synchronizacji - zeby na raz kilku nie czytalo/zapisywali
 	boost::shared_mutex mutex_;
 
-	static bool stopCGUI_;
+	static bool stopCGViewer_;
 	///Watek odbierania pakietow
-	boost::thread threadCGUI_;
+	boost::thread threadCGViewer_;
 
 	SDL_Event event;
 

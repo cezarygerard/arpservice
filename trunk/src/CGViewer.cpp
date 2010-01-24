@@ -5,19 +5,12 @@
 *
 *	
 */
-#include "CGUI.hpp"
+#include "CGViewer.hpp"
 
-bool CGUI::stopCGUI_ = false;
+bool CGViewer::stopCGViewer_ = false;
 
-//Screen attributes
-const int SCREEN_WIDTH = 1000;
-const int SCREEN_HEIGHT = 800;
-const int SCREEN_BPP = 32;
 
-//The frame rate
-const int FRAMES_PER_SECOND = 20;
-
-SDL_Surface* screen;  //boost::shared_ptr<SDL_Surface>
+SDL_Surface* screen;  
 
 boost::shared_ptr<SDL_Surface> background;
 boost::shared_ptr<SDL_Surface> active;
@@ -30,6 +23,7 @@ boost::shared_ptr<TTF_Font> font_large;
 
 //The color of the font 
 SDL_Color textColor = { 255, 255, 255 }; 
+SDL_Color textColorRed = { 255, 0, 0 }; 
 
 void SafeFreeSurface(SDL_Surface* surface)
 {
@@ -46,7 +40,7 @@ void SafeCloseFont(TTF_Font* font)
 }
 
 
-boost::shared_ptr<SDL_Surface> CGUI::loadImage(const std::string& filename)
+boost::shared_ptr<SDL_Surface> CGViewer::loadImage(const std::string& filename)
 {
     boost::shared_ptr<SDL_Surface> loadedImage(
             IMG_Load(filename.c_str()),
@@ -62,7 +56,7 @@ boost::shared_ptr<SDL_Surface> CGUI::loadImage(const std::string& filename)
     return optimizedImage;
 }
 
-boost::shared_ptr<TTF_Font> CGUI::openFont(const std::string& fileName, int size)
+boost::shared_ptr<TTF_Font> CGViewer::openFont(const std::string& fileName, int size)
 {
     boost::shared_ptr<TTF_Font> font(
             TTF_OpenFont(fileName.c_str(), size),
@@ -73,7 +67,7 @@ boost::shared_ptr<TTF_Font> CGUI::openFont(const std::string& fileName, int size
 }
 
 
-void CGUI::applySurface( int x, int y,  boost::shared_ptr<SDL_Surface> source, SDL_Surface* destination, SDL_Rect* clip )
+void CGViewer::applySurface( int x, int y,  boost::shared_ptr<SDL_Surface> source, SDL_Surface* destination, SDL_Rect* clip )
 {
     //Holds offsets
     SDL_Rect offset;
@@ -86,7 +80,7 @@ void CGUI::applySurface( int x, int y,  boost::shared_ptr<SDL_Surface> source, S
     SDL_BlitSurface( source.get(), clip, destination, &offset );
 }
 
-bool CGUI::init()
+bool CGViewer::init()
 {
     //Initialize all SDL subsystems
     if( SDL_Init( SDL_INIT_EVERYTHING ) == -1 )
@@ -117,7 +111,7 @@ bool CGUI::init()
 }
 
 
-bool CGUI::loadFiles()
+bool CGViewer::loadFiles()
 {
     background = loadImage( "../res/background.png" );
     if( background.get() == NULL )
@@ -150,32 +144,32 @@ bool CGUI::loadFiles()
     return true;
 }
 
-void CGUI::cleanUp()
+void CGViewer::cleanUp()
 {
     //Quit SDL
     SDL_Quit();
-	stopCGUI_ = true;
+	stopCGViewer_ = true;
 }
 
-void CGUI::refreshGUI()
+void CGViewer::refreshGUI()
 {
-	while(!stopCGUI_)
+	while(!stopCGViewer_)
 	{
 
 		//Initialize
 		if( init() == false )
 		{
-			stopCGUI_ = true;
+			stopCGViewer_ = true;
 		}
 
 		//Load the files
 		if( loadFiles() == false )
 		{
-			stopCGUI_ = true;
+			stopCGViewer_ = true;
 		}
 
 		//While the user hasn't quit
-		while( !stopCGUI_ )
+		while( !stopCGViewer_ )
 		{
 
 			//While there's events to handle
@@ -185,7 +179,7 @@ void CGUI::refreshGUI()
 				if( event.type == SDL_QUIT )
 				{
 					//Quit the program
-					stopCGUI_ = true;
+					stopCGViewer_ = true;
 					CMainLoop::getInstance()->quitNow();
 				}
 			}
@@ -205,7 +199,7 @@ void CGUI::refreshGUI()
 			//Update the screen
 			if( SDL_Flip( screen ) == -1 )
 			{
-				stopCGUI_ = true;
+				stopCGViewer_ = true;
 			}
 
 			//Cap the frame rate
@@ -218,17 +212,22 @@ void CGUI::refreshGUI()
 }
 
 
-void CGUI::createTable()
+void CGViewer::createTable()
 {
 	boost::shared_lock<boost::shared_mutex> lock(mutex_);
 
 	int i = 0;
 	int num_of_hosts = activeHosts_.size();
-
-	int max_x = static_cast<int>(sqrt(static_cast<double>(num_of_hosts))+1)%9;
-	int max_y = static_cast<int>(sqrt(static_cast<double>(num_of_hosts))+1)%7;
+	
+	int max_x = static_cast<int>(sqrt(static_cast<double>(num_of_hosts)) + 2);
+	int max_y = static_cast<int>(sqrt(static_cast<double>(num_of_hosts)));
+	if(num_of_hosts%2 == 0)
+		max_y += 1;
 	
 	int start_off_x, start_off_y;
+
+	if(max_x >  X_LIMIT) max_x = X_LIMIT;
+	if(max_y > Y_LIMIT) max_y =  Y_LIMIT;
 
 	start_off_x = (SCREEN_WIDTH - max_x*120)/2;
 	start_off_y = (SCREEN_HEIGHT + 100 - max_y*120)/2;
@@ -244,6 +243,13 @@ void CGUI::createTable()
 		message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font.get(), "Kompletowanie danych...", textColor ), boost::bind(&SafeFreeSurface, _1) ) ;   
 		applySurface( start_off_x, start_off_y, message, screen );
 	}
+	
+	//Uspokoj uzytkownika tekstem o nadmiarze hostów
+	if(num_of_hosts >= 48)
+	{
+		message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font.get(), "Osiagnieto limit wyswietlanych hostow!", textColorRed ), boost::bind(&SafeFreeSurface, _1) ) ;   
+		applySurface( SCREEN_WIDTH/2-120, 40, message, screen );
+	}
 	for(int y = 0; y < max_y; y++)
 		for(int x = 0; x < max_x; x++)
 		{
@@ -252,46 +258,36 @@ void CGUI::createTable()
 				//Zaleznie od TTL pokaz odpowiednia ikone
 				if(boost::get<2>(activeHosts_[i]) > 0)
 				{
-					applySurface( start_off_x + (x * 120), start_off_y + (y * 120), active, screen );
+					applySurface( start_off_x + (x * PICTURE_OFFSET), start_off_y + (y * PICTURE_OFFSET), active, screen );
 				}
 				else if(boost::get<2>(activeHosts_[i]) <= 0)
 				{
-					applySurface( start_off_x + (x * 120), start_off_y + (y * 120), inactive, screen );
+					applySurface( start_off_x + (x * PICTURE_OFFSET), start_off_y + (y * PICTURE_OFFSET), inactive, screen );
 				}
 				// Wypisz IP
 				message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font.get(), utils::iptos(boost::get<0>(activeHosts_[i])).c_str(), textColor ), boost::bind(&SafeFreeSurface, _1) ) ;   
-				applySurface( start_off_x + (x * 120), start_off_y + active->h + (y * 120), message, screen );
+				applySurface( start_off_x + (x * PICTURE_OFFSET), start_off_y + active->h + (y * PICTURE_OFFSET), message, screen );
 				// Wypisz MAC
 				message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font.get(), utils::macToS(boost::get<1>(activeHosts_[i])).c_str(), textColor ), boost::bind(&SafeFreeSurface, _1) ) ;   
-				applySurface( start_off_x + (x * 120), start_off_y + active->h + 12 + (y * 120), message, screen );
-			}
-			if(i == num_of_hosts)
-			{
-				applySurface( start_off_x + (x * 120), start_off_y + (y * 120), active, screen );
-				// Wypisz IP
-				message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font.get(), utils::iptos(CNetworkAdapter::getInstance()->getIPandMac().first).c_str(), textColor ), boost::bind(&SafeFreeSurface, _1) ) ;  
-				applySurface( start_off_x + (x * 120), start_off_y + active->h + (y * 120), message, screen );
-				// Wypisz MAC
-				message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font.get(), utils::macToS(CNetworkAdapter::getInstance()->getIPandMac().second).c_str(), textColor ), boost::bind(&SafeFreeSurface, _1) ) ; 
-				applySurface( start_off_x + (x * 120), start_off_y + active->h + 12 + (y * 120), message, screen );
+				applySurface( start_off_x + (x * PICTURE_OFFSET), start_off_y + active->h + 12 + (y * PICTURE_OFFSET), message, screen );
 			}
 			i++;
 		}
 }
 
-void CGUI::startCGUI()
+void CGViewer::startCGViewer()
 {
-	stopCGUI_ = false;
-	threadCGUI_ = boost::thread(boost::bind(&CGUI::refreshGUI, this));
+	stopCGViewer_ = false;
+	threadCGViewer_ = boost::thread(boost::bind(&CGViewer::refreshGUI, this));
 }
 
-void CGUI::stopCGUI()
+void CGViewer::stopCGViewer()
 {
-	stopCGUI_ = true;
+	stopCGViewer_ = true;
 }
 
 
-void CGUI::refreshCGUIActiveHosts(std::map<utils::MacAdress,ActiveHost, utils::lessMAC>& m)
+void CGViewer::refreshCGViewerActiveHosts(std::map<utils::MacAdress,ActiveHost, utils::lessMAC>& m)
 {
 	boost::unique_lock<boost::shared_mutex> write_lock(mutex_);
 

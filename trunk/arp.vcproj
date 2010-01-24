@@ -188,7 +188,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\CGUI.cpp"
+				RelativePath=".\src\CGViewer.cpp"
 				>
 			</File>
 			<File
@@ -226,7 +226,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\CGUI.hpp"
+				RelativePath=".\src\CGViewer.hpp"
 				>
 			</File>
 			<File

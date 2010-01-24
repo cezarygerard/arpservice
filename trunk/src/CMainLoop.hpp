@@ -17,7 +17,7 @@
 #include "CConnectionMgr.hpp"
 #include "CDataBaseWrapper.hpp"
 #include "ActiveHost.hpp"
-#include "CGUI.hpp"
+#include "CGViewer.hpp"
 
 
 class CMainLoop : public CSingleton<CMainLoop>
@@ -36,7 +36,7 @@ private:
 
 	bool quit_;
 	int interval_;
-	CMainLoop(): quit_(false), interval_(5000) {};
+	CMainLoop(): quit_(false), interval_(1) {};
 	~CMainLoop() {};
 
 };
