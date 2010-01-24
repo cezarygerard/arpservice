@@ -95,7 +95,7 @@ void CDataBaseWrapper::handleReceivedInThread()
 	while(!stopHandleReceivedThread_)
 	{
 		handleReceived();
-		boost::this_thread::sleep(boost::posix_time::seconds(1));
+		boost::this_thread::sleep(boost::posix_time::seconds(utils::HANDLE_SLEEP_PERIOD));
 	}
 }
 
@@ -180,10 +180,10 @@ void CDataBaseWrapper::startHandlingReceived()
 {
 
 //najpierw trzeba zatrzymac watek, jezeli dziala
-stopHandleReceivedThread_ = true;
-handleReceivedThread_.join();
+	stopHandleReceivedThread_ = true;
+	handleReceivedThread_.join();
 
-stopHandleReceivedThread_ = false;
-handleReceivedThread_ = boost::thread(boost::bind(&CDataBaseWrapper::handleReceivedInThread, this));
+	stopHandleReceivedThread_ = false;
+	handleReceivedThread_ = boost::thread(boost::bind(&CDataBaseWrapper::handleReceivedInThread, this));
 
 }

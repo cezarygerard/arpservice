@@ -292,7 +292,7 @@ void CNetworkAdapter::captureARPs()
 				stopCaptureARPs_ = true;
 			}
 		
-			boost::this_thread::sleep(boost::posix_time::millisec(1));
+			boost::this_thread::sleep(boost::posix_time::millisec(utils::RECEIVER_SLEEP_PERIOD));
 	}
 }
 
