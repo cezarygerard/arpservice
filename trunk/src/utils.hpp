@@ -59,8 +59,9 @@ namespace utils
 	};
 
 	int charToHex(char c);
+	static const int ARP_SEND_PERIOD = 30;
+	static const int MAX_TTL = 7 * ARP_SEND_PERIOD;
 
-	static const int MAX_TTL = 25;
 //	struct IPAddress;
 //	struct MacAdress;
 	///zmiania IP z long int na string
