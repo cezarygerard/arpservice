@@ -60,6 +60,7 @@ namespace utils
 
 	int charToHex(char c);
 
+	static const int MAX_TTL = 25;
 //	struct IPAddress;
 //	struct MacAdress;
 	///zmiania IP z long int na string

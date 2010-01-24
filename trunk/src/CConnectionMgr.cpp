@@ -33,8 +33,9 @@ CConnectionMgr::~CConnectionMgr()
 
 void CConnectionMgr::startListening(int port)
 {
-	stopListening_ = false;
+	stopListening_ = true;
 	listeningThread_.join();
+	stopListening_ = false;
 	listeningThread_ = boost::thread(boost::bind(&CConnectionMgr::listen, this, port));
 }
 
@@ -62,9 +63,7 @@ void CConnectionMgr::connect(std::string ip, int port)
 		sockSet_= SDLNet_AllocSocketSet(1);
 		SDLNet_TCP_AddSocket(sockSet_, csd_);
 		receivingThread_ = boost::thread(boost::bind(&CConnectionMgr::receiveInfo, this, csd_));
-//		startRec();
-//		startSend();
-	//	return 1;
+
 	}
 	else
 	{
@@ -178,8 +177,9 @@ void CConnectionMgr::sendInfo(TCPsocket csd_)
 	SDLNet_TCP_Close(csd_);
 }
 
-void CConnectionMgr::receiveInfo(TCPsocket csd_)
+HostsMapPtr CConnectionMgr::receiveInfo(TCPsocket csd_)
 {
+	HostsMapPtr hostsMap = HostsMapPtr(new std::map<utils::MacAdress, ActiveHost, lessMAC>);
 	boost::mutex::scoped_lock scoped_lock(mutex);
 	{
 		bool quit = false;
@@ -223,6 +223,11 @@ void CConnectionMgr::receiveInfo(TCPsocket csd_)
 							}
 							
 							cout<<"CConnectionMgr::receiveInfo "<<utils::iptos(ah->ip)<<endl;
+							if(ah->start[0] != '0')
+							{
+								hostsMap->insert(pair<utils::MacAdress,ActiveHost>(ah->mac,*ah) );
+						
+							}
 						}
 					}
 				}
@@ -232,5 +237,5 @@ void CConnectionMgr::receiveInfo(TCPsocket csd_)
 		SDLNet_TCP_Close(csd_);
 	}
 	startListening();
-
+	return hostsMap;
 }

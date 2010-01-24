@@ -26,10 +26,14 @@
 #include "utils.hpp"
 #include "ActiveHost.hpp"
 #include "CDataBaseWrapper.hpp"
+#include <boost/shared_ptr.hpp>
 using namespace std;
 
 class CDataBaseWrapper;
 class ActiveHost;
+struct lessMAC;
+
+typedef boost::shared_ptr< map<utils::MacAdress,ActiveHost,lessMAC> > HostsMapPtr;
 
 class CConnectionMgr : public CSingleton<CConnectionMgr>//, public CTimerObserver 
 {
@@ -51,7 +55,7 @@ private:
 
 	void sendInfo(TCPsocket csd_);
 
-	void receiveInfo(TCPsocket csd_);
+	HostsMapPtr receiveInfo(TCPsocket csd_);
 
 	boost::thread listeningThread_;
 
