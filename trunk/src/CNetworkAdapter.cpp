@@ -23,7 +23,9 @@ CNetworkAdapter::~CNetworkAdapter()
 {
 	cout<<"CNetworkAdapter::~CNetworkAdapter() zamykanie"<<endl;
 	stopCaptureARPs_=true;
+	captureARPsThread_.join();
 	stopSendARPs_ = true;
+	sendARPsThread_.join();
 	initDone_=false;
 }
 
@@ -152,6 +154,14 @@ void CNetworkAdapter::sendARPs()
 			unsigned int o3 = (unsigned int)arp_req[40];
 			unsigned int o4 = (unsigned int)arp_req[41];
 			
+			int arpCount = ( 256 - (255 & netMask_.ip[0])) 
+							* (256 - (255 & netMask_.ip[1]))
+							* (256 - (255 & netMask_.ip[2]))
+							* (256 - (255 & netMask_.ip[3]));
+			int sleepPeriod = int(ARP_SEND_PERIOD*1000000/arpCount);
+			if(sleepPeriod < 1)
+				sleepPeriod =1;
+
 			for(unsigned int i = 256 - (255 & netMask_.ip[0]); i>0;i--)
 			{
 				for(unsigned int j = 256 - (255 & netMask_.ip[1]); j>0;j--)
@@ -166,11 +176,16 @@ void CNetworkAdapter::sendARPs()
 							arp_req[41]=o4;
 							o4++;
 							boost::mutex::scoped_lock scoped_lock(mutex_);
+
 							if (pcap_sendpacket(fp_, arp_req, utils::ARP_REQ_SIZE ) != 0)
 							{
 								fprintf(stderr,"\nError sending the packet: \n", pcap_geterr(fp_));
 								//return -3;
 							}
+							if(stopSendARPs_)
+								return;
+							
+							boost::this_thread::sleep(boost::posix_time::microsec(sleepPeriod));
 						//	Sleep(2);
 						}
 						o3++;
@@ -179,7 +194,7 @@ void CNetworkAdapter::sendARPs()
 				}
 				o1++;
 			}
-			boost::this_thread::sleep(boost::posix_time::seconds(ARP_SEND_PERIOD));
+			//boost::this_thread::sleep(boost::posix_time::seconds(ARP_SEND_PERIOD));
 		}
 	//	Sleep(60*1000);
 //	}
@@ -187,23 +202,23 @@ void CNetworkAdapter::sendARPs()
 void CNetworkAdapter::startCapturingARPs()
 {
 
-//najpierw trzeba zatrzymac watek, jezeli dziala
-stopCaptureARPs_ = true;
-captureARPsThread_.join();
+	//najpierw trzeba zatrzymac watek, jezeli dziala
+	stopCaptureARPs_ = true;
+	captureARPsThread_.join();
 
-stopCaptureARPs_ = false;
-captureARPsThread_ = boost::thread(boost::bind(&CNetworkAdapter::captureARPs, this));
+	stopCaptureARPs_ = false;
+	captureARPsThread_ = boost::thread(boost::bind(&CNetworkAdapter::captureARPs, this));
 
 }
 
 void CNetworkAdapter::startSendingARPs()
 {
 
-stopSendARPs_ = true;
-sendARPsThread_ .join();
+	stopSendARPs_ = true;
+	sendARPsThread_ .join();
 
-stopSendARPs_ = false;
-sendARPsThread_ = boost::thread(boost::bind(&CNetworkAdapter::sendARPs, this));
+	stopSendARPs_ = false;
+	sendARPsThread_ = boost::thread(boost::bind(&CNetworkAdapter::sendARPs, this));
 
 }
 
@@ -276,6 +291,8 @@ void CNetworkAdapter::captureARPs()
 				cerr << "CNetworkAdapter::captureARPs: Blad przy odbieraniu pakietu!!" << endl;
 				stopCaptureARPs_ = true;
 			}
+		
+			boost::this_thread::sleep(boost::posix_time::millisec(1));
 	}
 }
 
