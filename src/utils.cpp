@@ -327,6 +327,7 @@ bool lessMAC::operator()(const MacAdress& m1, const MacAdress& m2)const
 
 			v = v * 10 + charToHex(s[i]);
 		}
+		ip.ip[j++] = v;
 		return ip;
 	}
 

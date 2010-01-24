@@ -52,6 +52,12 @@ void CDataBaseWrapper::handleReceived()
 			//activeHosts_.erase(it);
 		}
 	}
+	
+	
+	ActiveHost ah;
+	ah.ip = CNetworkAdapter::getInstance()->getIPandMac().first;
+	ah.mac = CNetworkAdapter::getInstance()->getIPandMac().second;
+	received_.push(ah);
 
 	while (!received_.empty())
 	{
