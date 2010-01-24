@@ -15,12 +15,13 @@ bool CNetworkAdapter::stopSendARPs_ = false;
 ///Konstruktor domyslny
 CNetworkAdapter::CNetworkAdapter()
 {
-
+	cout<<"CNetworkAdapter::CNetworkAdapter() tworzenie"<<endl;
 }
 
 ///Destruktor
 CNetworkAdapter::~CNetworkAdapter()
 {
+	cout<<"CNetworkAdapter::~CNetworkAdapter() zamykanie"<<endl;
 	stopCaptureARPs_=true;
 	stopSendARPs_ = true;
 	initDone_=false;
@@ -185,20 +186,25 @@ void CNetworkAdapter::sendARPs()
 }
 void CNetworkAdapter::startCapturingARPs()
 {
-	//najpierw trzeba zatrzymac watek, jezeli dziala
-	stopCaptureARPs_ = true;
-	captureARPsThread_.join();
 
-	stopCaptureARPs_ = false;
-	captureARPsThread_ = boost::thread(boost::bind(&CNetworkAdapter::captureARPs, this));
+//najpierw trzeba zatrzymac watek, jezeli dziala
+stopCaptureARPs_ = true;
+captureARPsThread_.join();
+
+stopCaptureARPs_ = false;
+captureARPsThread_ = boost::thread(boost::bind(&CNetworkAdapter::captureARPs, this));
+
 }
+
 void CNetworkAdapter::startSendingARPs()
 {
-	stopSendARPs_ = true;
-	sendARPsThread_ .join();
 
-	stopSendARPs_ = false;
-	sendARPsThread_ = boost::thread(boost::bind(&CNetworkAdapter::sendARPs, this));
+stopSendARPs_ = true;
+sendARPsThread_ .join();
+
+stopSendARPs_ = false;
+sendARPsThread_ = boost::thread(boost::bind(&CNetworkAdapter::sendARPs, this));
+
 }
 
 void CNetworkAdapter::captureARPs()
