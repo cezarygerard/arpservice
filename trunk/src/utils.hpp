@@ -33,6 +33,8 @@ namespace utils
 {
 	///rozmiar pakietu ARP request
 	const int ARP_REQ_SIZE = 60;
+	const int ARP_SEND_PERIOD = 15;
+	const int MAX_TTL = 7 * ARP_SEND_PERIOD;
 	
 	struct IPAddress
 	{
@@ -65,8 +67,7 @@ struct lessMAC// : public binary_function<MacAdress, MacAdress, bool>
 	};
 
 	int charToHex(char c);
-	static const int ARP_SEND_PERIOD = 30;
-	static const int MAX_TTL = 5 * ARP_SEND_PERIOD;
+
 
 //	struct IPAddress;
 //	struct MacAdress;

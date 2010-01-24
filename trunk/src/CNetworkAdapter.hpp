@@ -42,7 +42,6 @@ public:
 	//Metoda uruchamia watek odbierania pakietow
 	void startCapturingARPs();
 
-
 	std::pair<utils::IPAddress, utils::MacAdress> getIPandMac() const;
 
 	void startSendingARPs();
