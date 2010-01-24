@@ -179,7 +179,7 @@ void CNetworkAdapter::sendARPs()
 				}
 				o1++;
 			}
-			boost::this_thread::sleep(boost::posix_time::seconds(10));
+			boost::this_thread::sleep(boost::posix_time::seconds(ARP_SEND_PERIOD));
 		}
 	//	Sleep(60*1000);
 //	}
