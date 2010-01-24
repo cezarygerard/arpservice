@@ -87,9 +87,9 @@ void CDataBaseWrapper::handleReceived()
 		
 		received_.pop();
 		//	utils::MacAdress currentMac = received_.front().mac;
-	//	activeHosts_[currentMac].
-		CGUI::getInstance()->refreshCGUIActiveHosts();
+	//	activeHosts_[currentMac].		
 	}
+	CGUI::getInstance()->refreshCGUIActiveHosts();
 }
 
 const std::vector<boost::tuple<IPAddress, MacAdress, int>> CDataBaseWrapper::cguiQuery() 
