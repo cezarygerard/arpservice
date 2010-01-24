@@ -35,7 +35,7 @@ void CDataBaseWrapper::handleReceived()
 {
 	
 	boost::mutex::scoped_lock scoped_lock(mutex_);
-
+	string currentTime = utils::getTime();
 	map<utils::MacAdress,ActiveHost, utils::lessMAC>::iterator it;
 	for(it = activeHosts_.begin(); it != activeHosts_.end(); it++ )
 	{
@@ -47,7 +47,7 @@ void CDataBaseWrapper::handleReceived()
 		{
 			(*it).second.ttl -=1;
 			//zapisz info do bazy//
-			(*it).second.stop = utils::getTime();
+			(*it).second.stop = currentTime;
 			saveHostToDB((*it).second);
 			//activeHosts_.erase(it);
 		}
@@ -67,8 +67,8 @@ void CDataBaseWrapper::handleReceived()
 		
 		if(it == activeHosts_.end())
 		{//hosta nie ma na liscie 
-			ah.start = utils::getTime();
-			ah.stop = utils::getTime();
+			ah.start = currentTime;
+			ah.stop =currentTime;
 			activeHosts_.insert ( pair<utils::MacAdress,ActiveHost>(ah.mac,ah) );
 
 		}
@@ -76,10 +76,10 @@ void CDataBaseWrapper::handleReceived()
 		{//host jest na liscie 
 			if((*it).second.ttl <=0)
 			{
-				(*it).second.start = utils::getTime();
+				(*it).second.start = currentTime;
 			}
 			(*it).second.ttl = utils::MAX_TTL;
-			(*it).second.stop = utils::getTime();
+			(*it).second.stop = currentTime;
 			(*it).second.ip = ah.ip;
 		}
 		
@@ -163,14 +163,14 @@ void CDataBaseWrapper::saveAllHosts()
 	boost::mutex::scoped_lock scoped_lock(mutex_);
 
 	map<utils::MacAdress,ActiveHost, utils::lessMAC>::iterator it;
-	
+	string currentTime = utils::getTime();
 	for(it = activeHosts_.begin(); it != activeHosts_.end(); it++ )
 	{
 		if((*it).second.ttl>0)
 		{
 			(*it).second.ttl = - 1;
 			//zapisz info do bazy//
-			(*it).second.stop = utils::getTime();
+			(*it).second.stop =currentTime;
 			saveHostToDB((*it).second);
 		}	
 	}

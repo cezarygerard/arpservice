@@ -21,7 +21,7 @@ void CMainLoop::enterMainLoop()
 	while(!quit_)	
 	{	
 		//CDataBaseWrapper::getInstance()->handleReceived();
-		
+		boost::this_thread::sleep(boost::posix_time::seconds(1));
 	}
 }
 
