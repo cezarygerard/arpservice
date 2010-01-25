@@ -39,8 +39,15 @@ void CMainLoop::enterMainLoop()
 			;
 		else if(token == "show" || token == "sh")
 		{
-			CGViewer::getInstance()->startCGViewer();
-			cout << "Wyswietlanie monitora sieci" << endl;
+			string alt;
+			data >> alt;
+			if(alt == "clients" || alt == "cl")
+				CConnectionMgr::getInstance()->showConnections();
+			else
+			{
+				CGViewer::getInstance()->startCGViewer();
+				cout << "Wyswietlanie monitora sieci" << endl;
+			}
 		}
 		else if(token == "hide" || token == "hi")
 		{
@@ -95,12 +102,14 @@ void CMainLoop::enterMainLoop()
 		}
 		else if(token == "connect" || token == "co")
 		{
-			CConnectionMgr::getInstance()->CConnectionMgr::startConnections();
-			boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+			serviceThread_.join();
+			serviceThread_ = boost::thread(boost::bind(&CMainLoop::startCConnections, this));
+			
 		}
 		else if(token == "disconnect" || token == "di")
 		{
-			CConnectionMgr::getInstance()->CConnectionMgr::stopConnections();
+			serviceThread_.join();
+			serviceThread_ = boost::thread(boost::bind(&CMainLoop::stopCConnections, this));
 			cout << "Oczekiwanie na zakonczenie polaczenia..." << endl;
 		}
 		else if(token == "quit" || token == "q" || token == "exit")
@@ -121,10 +130,13 @@ void CMainLoop::enterMainLoop()
 
 void CMainLoop::endMainLoop()
 {
+	serviceThread_.join();
+
 	CDataBaseWrapper::destroyInstance();
 	CNetworkAdapter::destroyInstance();
 	CConnectionMgr::destroyInstance(); 
 	CGViewer::destroyInstance();
+
 	utils::fout.close();
 }
 
@@ -136,16 +148,17 @@ void CMainLoop::quitNow()
 void CMainLoop::showHelp()
 {
 	cout << "Lista komend\n";
-	cout << "?, help aby wyswietlic ten ekran\n";
+	cout << "[?], [help] aby wyswietlic ten ekran\n";
 
-	cout << "at, attach IP w celu dodania host'a do grupy klientow\n";
-	cout << "dt, detach IP w celu usuniecia host'a z grupy klientow\n";
-	cout << "co, connect w celu otwarcia polaczen z grupa klientow\n";
-	cout << "di, disconnect w celu zamkniecia polaczen z grupa klientow\n";
-	cout << "sh, show aby wyswietlic graficzny monitor sieci\n";
-	cout << "hi, hide aby ukryc graficzny monitor sieci\n";
+	cout << "[at IP], [attach IP] w celu dodania host'a do grupy klientow\n";
+	cout << "[dt IP], [detach IP] w celu usuniecia host'a z grupy klientow\n";
+	cout << "[co], [connect] w celu otwarcia polaczen z grupa klientow\n";
+	cout << "[di], [disconnect] w celu zamkniecia polaczen z grupa klientow\n";
+	cout << "[sh cl], [show clients] aby wyswietlic liste klientow\n";
+	cout << "[sh], [show] aby wyswietlic graficzny monitor sieci\n";
+	cout << "[hi], [hide] aby ukryc graficzny monitor sieci\n";
 
-	cout << "q, quit aby wyjsc\n";
+	cout << "[q], [quit] aby wyjsc\n";
 }
 bool CMainLoop::loadParams() 
 {
@@ -186,4 +199,16 @@ bool CMainLoop::loadParams()
 	}
 	utils::MAX_TTL = utils::TTL * utils::ARP_SEND_PERIOD;
 	return true;
+}
+
+void CMainLoop::stopCConnections()
+{
+	CConnectionMgr::getInstance()->stopConnections();
+	cout << "Polaczenia zostaly zakonczone" << endl;
+}
+
+void CMainLoop::startCConnections()
+{
+	CConnectionMgr::getInstance()->startConnections();
+	boost::this_thread::sleep(boost::posix_time::milliseconds(50));
 }

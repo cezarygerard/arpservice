@@ -69,6 +69,17 @@ void CConnectionMgr::startConnections(int port)
 	connectingThread_ = boost::thread(boost::bind(&CConnectionMgr::connections, this, port));
 }
 
+void CConnectionMgr::showConnections()
+{
+	cout << "\n****\n* Wykaz klientow:\n*";
+	for(set<std::string>::iterator it = ipSet_.begin(); it != ipSet_.end(); ++it)
+	{
+		cout << "\n* " << *it;
+	}
+	cout << "\n****" << endl;
+
+
+}
 void CConnectionMgr::stopConnections()
 {
 	stopConnecting_ = true;
@@ -77,9 +88,12 @@ void CConnectionMgr::stopConnections()
 
 void CConnectionMgr::connections(int port)
 {
+	stopListening_ = true;
+	listeningThread_.join();
+
 	if(!ipSet_.empty())
 	{
-		cout << "nawiazywanie polaczen..." << endl;
+		cout << "Nawiazywanie polaczen..." << endl;
 		while (!stopConnecting_)
 		{
 			{
@@ -95,13 +109,12 @@ void CConnectionMgr::connections(int port)
 		stopConnecting_ = true;
 		connectingThread_.join();
 	}
-	
+	startListening();
 }
 
 void CConnectionMgr::connect(std::string ip, int port)
 {
-	stopListening_ = true;
-	listeningThread_.join();
+
 
 	boost::recursive_mutex::scoped_lock recursive_lock(recursive_mutex);
 	IPaddress ip_;
@@ -121,14 +134,12 @@ void CConnectionMgr::connect(std::string ip, int port)
 //		isClient_ = true;
 		sockSet_= SDLNet_AllocSocketSet(1);
 		SDLNet_TCP_AddSocket(sockSet_, csd_);
-		receiveInfo(csd_);
-		//receivingThread_ = boost::thread(boost::bind(&CConnectionMgr::receiveInfo, this, csd_));
-
+		CDataBaseWrapper::getInstance()->enqueReceivedExternal(receiveInfo(csd_));
+	
 	}
 	else
 	{
 		fprintf(stderr, "SDLNet_TCP_Open: %s\n", SDLNet_GetError());
-		startListening();
 	}
 
 }
@@ -196,6 +207,7 @@ void CConnectionMgr::sendInfo(TCPsocket csd_)
 {
 
 	boost::mutex::scoped_lock scoped_lock(mutex);
+	cout << "\nTransmisja w roli klienta\n";
 	utils::fout<<"CNetwork::sendInfo()"<<endl;
 	map<utils::MacAdress,ActiveHost, utils::lessMAC>::iterator it;
 	map<utils::MacAdress,ActiveHost, utils::lessMAC> * activeHosts = &(CDataBaseWrapper::getInstance()->activeHosts_);
@@ -295,6 +307,6 @@ HostsMapPtr CConnectionMgr::receiveInfo(TCPsocket csd_)
 
 		SDLNet_TCP_Close(csd_);
 	}
-	startListening();
+
 	return hostsMap;
 }
