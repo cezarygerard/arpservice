@@ -77,14 +77,23 @@ void CConnectionMgr::stopConnections()
 
 void CConnectionMgr::connections(int port)
 {
-	cout << "nawiazywanie polaczen..." << endl;
-	while (!stopConnecting_)
+	if(!ipSet_.empty())
 	{
+		cout << "nawiazywanie polaczen..." << endl;
+		while (!stopConnecting_)
 		{
-			boost::recursive_mutex::scoped_lock recursive_lock(recursive_mutex);
-			for_each(ipSet_.begin(), ipSet_.end(), boost::bind(&CConnectionMgr::connect, this, _1, port));
+			{
+				boost::recursive_mutex::scoped_lock recursive_lock(recursive_mutex);
+				for_each(ipSet_.begin(), ipSet_.end(), boost::bind(&CConnectionMgr::connect, this, _1, port));
+			}
+			boost::this_thread::sleep(boost::posix_time::seconds(60));
 		}
-		boost::this_thread::sleep(boost::posix_time::seconds(30));
+	}
+	else
+	{
+		cerr << "Brak polaczenia.\nNie wprowadzono zadnego adresu klienta!" << endl;
+		stopConnecting_ = true;
+		connectingThread_.join();
 	}
 	
 }

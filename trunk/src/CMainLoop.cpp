@@ -95,11 +95,13 @@ void CMainLoop::enterMainLoop()
 		}
 		else if(token == "connect" || token == "co")
 		{
-
+			CConnectionMgr::getInstance()->CConnectionMgr::startConnections();
+			boost::this_thread::sleep(boost::posix_time::milliseconds(50));
 		}
 		else if(token == "disconnect" || token == "di")
 		{
-
+			CConnectionMgr::getInstance()->CConnectionMgr::stopConnections();
+			cout << "Oczekiwanie na zakonczenie polaczenia..." << endl;
 		}
 		else if(token == "quit" || token == "q" || token == "exit")
 		{
