@@ -14,6 +14,8 @@
 #include "SDL_ttf.h"
 #include <math.h>
 #include <vector>
+#include <sstream>
+
 
 #include <boost/smart_ptr.hpp>
 #include <boost/bind.hpp>
@@ -21,6 +23,7 @@
 #include <boost/tuple/tuple.hpp>
 
 #include "CMainLoop.hpp"
+#include "CSingleton.hpp"	
 #include "CDataBaseWrapper.hpp"
 #include "CNetworkAdapter.hpp"
 
@@ -36,7 +39,6 @@ public:
 
 	//Metoda uruchamia watek odbierania pakietow
 	void startCGViewer();
-	void stopCGViewer();
 	void refreshCGViewerActiveHosts(std::map<utils::MacAdress,ActiveHost, utils::lessMAC>& m);
 	
 
@@ -52,12 +54,8 @@ private:
 	void refreshGUI();
 	void createTable();
 
-	CGViewer() {
-		std::cout<<"CGViewer::CGViewer() tworzenie"<< std::endl;
-	};
-	~CGViewer() {
-		std::cout<<"CGViewer::~CGViewer() zamykanie"<< std::endl;
-	};
+	CGViewer();
+	~CGViewer();
 
 	std::vector<boost::tuple<utils::IPAddress, utils::MacAdress, int>> activeHosts_;
 

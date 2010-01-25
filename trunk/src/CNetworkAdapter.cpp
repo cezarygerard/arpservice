@@ -15,13 +15,13 @@ bool CNetworkAdapter::stopSendARPs_ = false;
 ///Konstruktor domyslny
 CNetworkAdapter::CNetworkAdapter()
 {
-	cout<<"CNetworkAdapter::CNetworkAdapter() tworzenie"<<endl;
+	utils::fout<<"CNetworkAdapter::CNetworkAdapter() tworzenie"<<endl;
 }
 
 ///Destruktor
 CNetworkAdapter::~CNetworkAdapter()
 {
-	cout<<"CNetworkAdapter::~CNetworkAdapter() zamykanie"<<endl;
+	utils::fout<<"CNetworkAdapter::~CNetworkAdapter() zamykanie"<<endl;
 	stopCaptureARPs_=true;
 	captureARPsThread_.join();
 	stopSendARPs_ = true;
@@ -230,7 +230,7 @@ void CNetworkAdapter::captureARPs()
 	string s = "arp dst host " + utils::iptos(ip_);
 	char* packet_filter = const_cast<char*>(s.c_str());
 	
-	cout << packet_filter << endl;
+	utils::fout << packet_filter << endl;
 
 	if (d_->addresses != NULL)
         /* Retrieve the mask of the first address of the interface */
@@ -261,7 +261,7 @@ void CNetworkAdapter::captureARPs()
 	const u_char *pkt_data;
 	utils::ARPHeader *arp_h;
 
-	cout << "CNetworkAdapter::captureARPs: rozpoczeto watek captureARPsThread" << endl;
+	utils::fout << "CNetworkAdapter::captureARPs: rozpoczeto watek captureARPsThread" << endl;
 	while(!stopCaptureARPs_)
 	{
 		
@@ -277,9 +277,9 @@ void CNetworkAdapter::captureARPs()
 				// jezeli dany arp jest odpowiedzia, obsluz
 				if(arp_h->oper == 512) 
 				{
-					cout << endl;
-					cout << utils::iptos(arp_h->spa) << endl;
-					cout << utils::macToS(arp_h->sha) << endl;
+					utils::fout << endl;
+					utils::fout << utils::iptos(arp_h->spa) << endl;
+					utils::fout << utils::macToS(arp_h->sha) << endl;
 
 					ah.ip = arp_h->spa;
 					ah.mac = arp_h->sha;

@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
 	MacAdress mc = utils::sToMac("88aaFd00bBcc" );
 	CDataBaseWrapper::getInstance()->enqueReceived(ah);
 //	CDataBaseWrapper::getInstance()->saveHostToDB(ah);
-//	cout<<utils::getTime()<<endl;
+//	CLog::getInstance()->fout(utils::getTime());
 */
 	//CConnectionMgr::
 /*	std::ostringstream oss;

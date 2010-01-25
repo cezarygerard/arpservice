@@ -26,6 +26,16 @@ boost::shared_ptr<TTF_Font> font_large;
 SDL_Color textColor = { 255, 255, 255 }; 
 SDL_Color textColorRed = { 255, 0, 0 }; 
 
+
+CGViewer::CGViewer() {
+	utils::fout<<"CGViewer::CGViewer() tworzenie"<< std::endl;
+};
+CGViewer::~CGViewer() {
+	utils::fout<<"CGViewer::~CGViewer() zamykanie"<< std::endl;
+	stopCGViewer_ = true;
+	threadCGViewer_.join();
+};
+
 void SafeFreeSurface(SDL_Surface* surface)
 {
 	//dealokator SDL_Surface
@@ -129,7 +139,7 @@ bool CGViewer::loadFiles()
     }
 
 	// ladowanie czcionek
-	font = openFont( "../res/verdana.ttf", 12 ); 
+	font = openFont( "../res/verdana.ttf", 9 ); 
 
 	font_large = openFont("../res/verdana.ttf", 24 );
 	
@@ -212,24 +222,35 @@ void CGViewer::createTable()
 
 	int i = 0;
 	int num_of_hosts = activeHosts_.size();
-	
-	int max_x = static_cast<int>(sqrt(static_cast<double>(num_of_hosts)) + 2);
+
+	ostringstream ss;
+	ss << num_of_hosts;
+
+	string str_num_of_hosts = "Aktywnych hostow: " + ss.str();
+
+	if(num_of_hosts > 84) 
+		num_of_hosts = 84;
+
+	int max_x = static_cast<int>(sqrt(static_cast<double>(num_of_hosts)) + 3);
 	int max_y = static_cast<int>(sqrt(static_cast<double>(num_of_hosts)));
 	if(num_of_hosts%2 == 0)
 		max_y += 1;
 	
 	int start_off_x, start_off_y;
 
-	if(max_x >  X_LIMIT) max_x = X_LIMIT;
-	if(max_y > Y_LIMIT) max_y =  Y_LIMIT;
+	if(max_x >=  X_LIMIT) max_x = X_LIMIT;
+	if(max_y >= Y_LIMIT) max_y =  Y_LIMIT;
 
-	start_off_x = (SCREEN_WIDTH - max_x*120)/2;
-	start_off_y = (SCREEN_HEIGHT + 100 - max_y*120)/2;
+	start_off_x = (SCREEN_WIDTH - max_x*PICTURE_OFFSET)/2;
+	start_off_y = (SCREEN_HEIGHT + 100 - max_y*PICTURE_OFFSET)/2;
 
 	applySurface( 0, 0, background, screen );
-
+	
 	message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font_large.get(), "Monitor sieci LAN", textColor ), boost::bind(&SafeFreeSurface, _1) ) ;   
 	applySurface( SCREEN_WIDTH/2-100, 60, message, screen );
+
+	message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font.get(), str_num_of_hosts.c_str(), textColor ), boost::bind(&SafeFreeSurface, _1) ) ;   
+	applySurface( SCREEN_WIDTH/2-70, 15, message, screen );
 
 	//Uspokoj uzytkownika tekstem o oczekiwaniu
 	if(num_of_hosts == 0)
@@ -239,7 +260,7 @@ void CGViewer::createTable()
 	}
 	
 	//Uspokoj uzytkownika tekstem o nadmiarze hostów
-	if(num_of_hosts >= 48)
+	if(num_of_hosts >= 84)
 	{
 		message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font.get(), "Osiagnieto limit wyswietlanych hostow!", textColorRed ), boost::bind(&SafeFreeSurface, _1) ) ;   
 		applySurface( SCREEN_WIDTH/2-120, 40, message, screen );
@@ -271,13 +292,11 @@ void CGViewer::createTable()
 
 void CGViewer::startCGViewer()
 {
+	stopCGViewer_ = true;
+	threadCGViewer_.join();
+
 	stopCGViewer_ = false;
 	threadCGViewer_ = boost::thread(boost::bind(&CGViewer::refreshGUI, this));
-}
-
-void CGViewer::stopCGViewer()
-{
-	stopCGViewer_ = true;
 }
 
 

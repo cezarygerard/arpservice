@@ -18,6 +18,7 @@
 #include "CDataBaseWrapper.hpp"
 #include "ActiveHost.hpp"
 #include "CGViewer.hpp"
+#include "CLog.hpp"
 
 
 class CMainLoop : public CSingleton<CMainLoop>

@@ -37,7 +37,7 @@ public:
 protected:
 	/// Zabezpieczony przed dostepem konstruktor domyslny
 	CSingleton() {
-		std::cout << "Powstaje Singleton" << std::endl;
+		utils::fout << "Powstaje Singleton" << std::endl;
 	};
 	/// Zabezpieczony przed dostepem destruktor domyslny
 	virtual ~CSingleton() {};

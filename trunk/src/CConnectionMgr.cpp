@@ -102,8 +102,7 @@ void CConnectionMgr::listen(int port)
 
 	int quit = 0;
 	int t = 0;
-	cout<<"Nasluchiwanie polaczen przychodzacych na porcie: "<<port<<endl;
-//	printf("dupa");	
+	utils::fout<<"Nasluchiwanie polaczen przychodzacych na porcie: "<<port<<endl;
 
 	while (!stopListening_)
 	{
@@ -137,7 +136,7 @@ void CConnectionMgr::sendInfo(TCPsocket csd_)
 {
 
 	boost::mutex::scoped_lock scoped_lock(mutex);
-	cout<<"CNetwork::sendInfo()"<<endl;
+	utils::fout<<"CNetwork::sendInfo()"<<endl;
 	map<utils::MacAdress,ActiveHost, utils::lessMAC>::iterator it;
 	map<utils::MacAdress,ActiveHost, utils::lessMAC> * activeHosts = &(CDataBaseWrapper::getInstance()->activeHosts_);
 	
@@ -219,10 +218,10 @@ HostsMapPtr CConnectionMgr::receiveInfo(TCPsocket csd_)
 							
 							catch (boost::archive::archive_exception e)
 							{
-								cout<<"CConnectionMgr::receiveInfo nie udalo sie odebrac informacji o hoscie "<<e.code<<endl;
+								utils::fout<<"CConnectionMgr::receiveInfo nie udalo sie odebrac informacji o hoscie "<<e.code<<endl;
 							}
 							
-							cout<<"CConnectionMgr::receiveInfo "<<utils::iptos(ah->ip)<<endl;
+							utils::fout<<"CConnectionMgr::receiveInfo "<<utils::iptos(ah->ip)<<endl;
 							if(ah->start[0] != '0')
 							{
 								hostsMap->insert(pair<utils::MacAdress,ActiveHost>(ah->mac,*ah) );
