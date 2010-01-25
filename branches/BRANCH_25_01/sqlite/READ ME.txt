@@ -1,0 +1,3 @@
+w tym folderze znajduje sie plik bazy - ARPrecord.sqlite ktory nie jest w repozytorium.
+
+Zamiast niego bedizemy wrzucac plik _WZOR_ARPrecord.sqlite ktory zawiera jedynie schemat bazy danych, z niewielka iloscia danych w srodku.
