@@ -140,6 +140,8 @@ void CMainLoop::showHelp()
 
 	cout << "at, attach IP w celu dodania host'a do grupy klientow\n";
 	cout << "dt, detach IP w celu usuniecia host'a z grupy klientow\n";
+	cout << "co, connect w celu otwarcia polaczen z grupa klientow\n";
+	cout << "di, disconnect w celu zamkniecia polaczen z grupa klientow\n";
 	cout << "sh, show aby wyswietlic graficzny monitor sieci\n";
 	cout << "hi, hide aby ukryc graficzny monitor sieci\n";
 
