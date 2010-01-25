@@ -39,6 +39,7 @@ public:
 
 	//Metoda uruchamia watek odbierania pakietow
 	void startCGViewer();
+	void stopCGViewer();
 	void refreshCGViewerActiveHosts(std::map<utils::MacAdress,ActiveHost, utils::lessMAC>& m);
 	
 

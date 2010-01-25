@@ -69,11 +69,20 @@ bool lessMAC::operator()(const MacAdress& m1, const MacAdress& m2)const
 		  }
 		
 			int inter;
-			cout<<"podaj numwer interfejsu ktory chcesz uzyc\n>";
+			cout<<"podaj numer interfejsu ktory chcesz uzyc\n>";
 			cin>>inter;
 			d=alldevs;
 			for (int i=1; i<inter; i++)
-				d=d->next;
+			{
+				if(d->next != NULL)
+					d = d->next;
+				else 
+				{
+					cerr << endl <<  "<< Wybrano z³y interfejs! >>\n" << endl;
+					i = inter;
+					d = init();
+				}
+			}
 
 			return d;
 	}

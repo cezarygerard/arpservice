@@ -56,8 +56,9 @@ void CDataBaseWrapper::handleReceived()
 	
 	
 	ActiveHost ah;
-	ah.ip = CNetworkAdapter::getInstance()->getIPandMac().first;
-	ah.mac = CNetworkAdapter::getInstance()->getIPandMac().second;
+	ah.ip = boost::get<0>(CNetworkAdapter::getInstance()->getIPMacandNetMask());
+	ah.mac = boost::get<1>(CNetworkAdapter::getInstance()->getIPMacandNetMask());
+	ah.netmask = boost::get<2>(CNetworkAdapter::getInstance()->getIPMacandNetMask());
 	received_.push(ah);
 
 	while (!received_.empty())
@@ -112,15 +113,15 @@ void CDataBaseWrapper::saveHostToDB(ActiveHost& host)
 //	boost::mutex::scoped_lock scoped_lock(mutex_);
 	stringstream query;
 	sqlite3_stmt *statement;
-	query<<"insert into arprecord (mac,ip,start,stop) values ('"<<utils::macToS(host.mac)<<"','"
-			<<utils::iptos(host.ip)<<"','"<<host.start<<"','"<<host.stop<<"');";
+	query<<"insert into arprecord (mac,ip,start,stop,netmask) values ('"<< utils::macToS(host.mac)<<"','"
+			<<utils::iptos(host.ip)<<"','"<<host.start<<"','"<<host.stop<<"','"<<utils::iptos(host.netmask)<<"');";
 //	utils::fout<<"CDataBaseWrapper::saveHostToDB:"<<query.str()<<endl;
 	sqlite3_prepare_v2(database,query.str().c_str(),-1,&statement, NULL);
 	int result = sqlite3_step(statement);
 	if(result == SQLITE_DONE)
-		utils::fout<<"CDataBaseWrapper::saveHostToDB udalo sie"<<endl;
+		cout<<"CDataBaseWrapper::saveHostToDB udalo sie"<<endl;
 	else	
-		utils::fout<<"CDataBaseWrapper::saveHostToDB fail"<<result<<endl;
+		cout<<"CDataBaseWrapper::saveHostToDB fail"<<result<<endl;
 
 	sqlite3_finalize(statement);
 }
@@ -147,6 +148,10 @@ void CDataBaseWrapper::loadAllHosts()
 			
 			str = (char *)sqlite3_column_text(statement, 4);
 			ah.stop = string (str);
+			
+			str = (char *)sqlite3_column_text(statement, 5);
+			ah.netmask = utils::sToIp(string(str));
+			
 			ah.ttl = -1;
 			activeHosts_.insert( pair<utils::MacAdress,ActiveHost>(ah.mac,ah) );
 		}	

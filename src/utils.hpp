@@ -35,8 +35,9 @@ namespace utils
 {
 	///rozmiar pakietu ARP request
 	const int ARP_REQ_SIZE = 60; //bytes
-	const int ARP_SEND_PERIOD = 15; //seconds
-	const int MAX_TTL = 7 * ARP_SEND_PERIOD;
+	static int ARP_SEND_PERIOD = 15; //seconds
+	static int TTL = 7; 
+	static int MAX_TTL = TTL * ARP_SEND_PERIOD;
 	const int RECEIVER_SLEEP_PERIOD = 1; //ms
 	const int HANDLE_SLEEP_PERIOD = 1; //seconds
 	const int ETH_HEADER_OFFSET = 14; //bytes

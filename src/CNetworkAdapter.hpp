@@ -18,6 +18,7 @@
 #include "CDataBaseWrapper.hpp"
 
 
+#include <boost/tuple/tuple.hpp>
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 #include <boost/thread/mutex.hpp>
@@ -42,7 +43,7 @@ public:
 	//Metoda uruchamia watek odbierania pakietow
 	void startCapturingARPs();
 
-	std::pair<utils::IPAddress, utils::MacAdress> getIPandMac() const;
+	boost::tuple<utils::IPAddress, utils::MacAdress, utils::IPAddress> getIPMacandNetMask() const;
 
 	void startSendingARPs();
 

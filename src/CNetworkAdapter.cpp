@@ -283,9 +283,9 @@ void CNetworkAdapter::captureARPs()
 
 					ah.ip = arp_h->spa;
 					ah.mac = arp_h->sha;
+					ah.netmask = netMask_;
 					CDataBaseWrapper::getInstance()->enqueReceived(ah);
 				}
-			boost::this_thread::sleep(boost::posix_time::milliseconds(10));
 			}
 			if(res == -1){
 				cerr << "CNetworkAdapter::captureARPs: Blad przy odbieraniu pakietu!!" << endl;
@@ -296,7 +296,7 @@ void CNetworkAdapter::captureARPs()
 	}
 }
 
-std::pair<utils::IPAddress, utils::MacAdress> CNetworkAdapter::getIPandMac() const
+boost::tuple<utils::IPAddress, utils::MacAdress, utils::IPAddress>  CNetworkAdapter::getIPMacandNetMask() const
 {
-	return std::make_pair(ip_, mac_);
+	return boost::make_tuple(ip_, mac_, netMask_);
 }

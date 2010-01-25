@@ -14,6 +14,8 @@
 
 #include <string>
 #include <map>
+
+#include <boost/tuple/tuple.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <queue>
@@ -30,7 +32,7 @@
 using namespace std;
 using namespace utils;
 
-
+typedef boost::shared_ptr< map<utils::MacAdress,ActiveHost,utils::lessMAC> > ExternalHostsMapPtr;
 
 
 ///klasa przechowuje aktywne hosty i zapisuje do bazy danych.
@@ -70,7 +72,8 @@ private:
 
 	///kolejka aktywnych hostow
 	std::map<utils::MacAdress,ActiveHost, utils::lessMAC> activeHosts_;
-
+	///kolejka hostow zewnetrznych
+	ExternalHostsMapPtr externalHosts_;
 	///do synchronizacji - zeby na raz kilku nie czytalo/zapisywali
 	boost::mutex mutex_;
 
