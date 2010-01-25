@@ -35,10 +35,15 @@ public:
 
 private:
 	void showHelp();
+	void startCConnections();
+	void stopCConnections();
 	bool loadParams();
 
 	bool quit_;
 	int interval_;
+
+	boost::thread serviceThread_;
+
 	CMainLoop(): quit_(false), interval_(1) {};
 	~CMainLoop() {};
 

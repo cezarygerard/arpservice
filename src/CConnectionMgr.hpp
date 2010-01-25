@@ -48,6 +48,7 @@ public:
 
 	void startListening(int port = 20011);
 	void startConnections(int port = 20011);
+	void showConnections();
 	void stopConnections();
 
 private:

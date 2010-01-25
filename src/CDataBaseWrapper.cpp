@@ -108,9 +108,22 @@ void CDataBaseWrapper::enqueReceived(ActiveHost& host)
 	received_.push(host);
 }
 
+void CDataBaseWrapper::enqueReceivedExternal(ExternalHostsMapPtr externalHosts)
+{
+	boost::mutex::scoped_lock scoped_lock(mutexExternal_);
+	sh_iterator it = sh_iterator(externalHosts->begin(),externalHosts);
+	sh_iterator end = sh_iterator(externalHosts->end(),externalHosts);
+	for(it; it != end; ++it )
+	{
+		saveHostToDB((*it).second);
+		cout << utils::iptos((*it).second.ip) << endl;
+	}
+	
+}
+
 void CDataBaseWrapper::saveHostToDB(ActiveHost& host)
 {
-//	boost::mutex::scoped_lock scoped_lock(mutex_);
+	boost::mutex::scoped_lock scoped_lock(mutexDatabase_);
 	stringstream query;
 	sqlite3_stmt *statement;
 	query<<"insert into arprecord (mac,ip,start,stop,netmask) values ('"<< utils::macToS(host.mac)<<"','"
@@ -129,6 +142,7 @@ void CDataBaseWrapper::saveHostToDB(ActiveHost& host)
 void CDataBaseWrapper::loadAllHosts()
 {
 	boost::mutex::scoped_lock scoped_lock(mutex_);
+	boost::mutex::scoped_lock scoped_lock2(mutexDatabase_);
 	
 	string selectSql = "select * from arprecord group by mac;";
 	sqlite3_stmt *statement;
@@ -161,6 +175,7 @@ void CDataBaseWrapper::loadAllHosts()
 void CDataBaseWrapper::saveAllHosts()
 {
 	boost::mutex::scoped_lock scoped_lock(mutex_);
+	boost::mutex::scoped_lock scoped_lock2(mutexDatabase_);
 
 	map<utils::MacAdress,ActiveHost, utils::lessMAC>::iterator it;
 	string currentTime = utils::getTime();

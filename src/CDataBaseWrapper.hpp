@@ -15,6 +15,9 @@
 #include <string>
 #include <map>
 
+#include "boost/shared_container_iterator.hpp"
+#include "boost/shared_ptr.hpp"
+
 #include <boost/tuple/tuple.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
@@ -33,6 +36,8 @@ using namespace std;
 using namespace utils;
 
 typedef boost::shared_ptr< map<utils::MacAdress,ActiveHost,utils::lessMAC> > ExternalHostsMapPtr;
+typedef boost::shared_container_iterator< map<utils::MacAdress,ActiveHost,utils::lessMAC> > sh_iterator;
+
 
 
 ///klasa przechowuje aktywne hosty i zapisuje do bazy danych.
@@ -50,6 +55,8 @@ public:
 	void handleReceivedInThread();
 
 	void enqueReceived(ActiveHost& host);
+
+	void enqueReceivedExternal(ExternalHostsMapPtr externalHosts);
 
 	void saveHostToDB(ActiveHost& host);
 
@@ -76,6 +83,10 @@ private:
 	ExternalHostsMapPtr externalHosts_;
 	///do synchronizacji - zeby na raz kilku nie czytalo/zapisywali
 	boost::mutex mutex_;
+
+	boost::mutex mutexDatabase_;
+
+	boost::mutex mutexExternal_;
 
 	static bool stopHandleReceivedThread_;
 
