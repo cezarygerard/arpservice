@@ -16,19 +16,20 @@ CDataBaseWrapper::CDataBaseWrapper()
 	database = NULL;
 	if (sqlite3_open("../sqlite/ARPrecord.sqlite", &database) == SQLITE_OK) 
 	{
-		cout<<"CDataBaseWrapper::CDataBaseWrapper() udalo sie poloczyc z baza"<<endl;
-		loadAllHosts();
+		utils::fout<<"CDataBaseWrapper::CDataBaseWrapper() udalo sie poloczyc z baza"<<endl;
 	}
 	else
-		cout<<"CDataBaseWrapper::CDataBaseWrapper() nie!!!! udalo sie poloczyc z baza"<<endl;
+		utils::fout<<"CDataBaseWrapper::CDataBaseWrapper() nie!!!! udalo sie poloczyc z baza"<<endl;
 }
 
 CDataBaseWrapper::~CDataBaseWrapper()
 {
 	stopHandleReceivedThread_ = true;
+	handleReceivedThread_.join();
+
 	saveAllHosts();
 	sqlite3_close(database);
-	cout<<"CDataBaseWrapper::~CDataBaseWrapper() zamykanie"<<endl;
+	utils::fout<<"CDataBaseWrapper::~CDataBaseWrapper() zamykanie"<<endl;
 }
 
 void CDataBaseWrapper::handleReceived()
@@ -113,13 +114,13 @@ void CDataBaseWrapper::saveHostToDB(ActiveHost& host)
 	sqlite3_stmt *statement;
 	query<<"insert into arprecord (mac,ip,start,stop) values ('"<<utils::macToS(host.mac)<<"','"
 			<<utils::iptos(host.ip)<<"','"<<host.start<<"','"<<host.stop<<"');";
-//	cout<<"CDataBaseWrapper::saveHostToDB:"<<query.str()<<endl;
+//	utils::fout<<"CDataBaseWrapper::saveHostToDB:"<<query.str()<<endl;
 	sqlite3_prepare_v2(database,query.str().c_str(),-1,&statement, NULL);
 	int result = sqlite3_step(statement);
 	if(result == SQLITE_DONE)
-		cout<<"CDataBaseWrapper::saveHostToDB udalo sie"<<endl;
+		utils::fout<<"CDataBaseWrapper::saveHostToDB udalo sie"<<endl;
 	else	
-		cout<<"CDataBaseWrapper::saveHostToDB fail"<<result<<endl;
+		utils::fout<<"CDataBaseWrapper::saveHostToDB fail"<<result<<endl;
 
 	sqlite3_finalize(statement);
 }

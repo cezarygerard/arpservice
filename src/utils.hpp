@@ -20,6 +20,8 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <fstream>
+
 #include <iomanip>
 #include<math.h> 
 
@@ -40,13 +42,13 @@ namespace utils
 	const int ETH_HEADER_OFFSET = 14; //bytes
 
 	const int SCREEN_WIDTH = 1000; //px
-	const int SCREEN_HEIGHT = 800; //px
+	const int SCREEN_HEIGHT = 700; //px
 	const int SCREEN_BPP = 32;
 
-	const int PICTURE_OFFSET = 120; //px
+	const int PICTURE_OFFSET = 76; //px
 
-	const int X_LIMIT = 8; 
-	const int Y_LIMIT = 6;
+	const int X_LIMIT = 14; 
+	const int Y_LIMIT = 7;
 
 	const int FRAMES_PER_SECOND = 20; // dzielnik
 
@@ -60,11 +62,13 @@ namespace utils
 		unsigned char m[6];
 	};
 
-///klasa potrzebna do porownywania adresow mac, aby mogly byc kluczem w std::map
-struct lessMAC// : public binary_function<MacAdress, MacAdress, bool>
-{	
-	bool operator()(const MacAdress& m1, const MacAdress& m2) const;
-};
+	static ofstream fout("../log/log.txt");
+
+	///klasa potrzebna do porownywania adresow mac, aby mogly byc kluczem w std::map
+	struct lessMAC// : public binary_function<MacAdress, MacAdress, bool>
+	{	
+		bool operator()(const MacAdress& m1, const MacAdress& m2) const;
+	};
 
 	// ARP
 	struct ARPHeader

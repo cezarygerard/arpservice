@@ -2,26 +2,31 @@
 
 void CMainLoop::initMainLoop()
 {
-	CNetworkAdapter::getInstance()->init(utils::init());
-	CNetworkAdapter::getInstance()->open();	
 
-	CGViewer::getInstance()->startCGViewer();
+	CGViewer::getInstance();
+	CNetworkAdapter::getInstance();
+	CDataBaseWrapper::getInstance();
+	CConnectionMgr::getInstance();	
+	utils::fout.open("../log/log.txt",ios_base::out);
 	
-	CDataBaseWrapper::getInstance()->loadAllHosts();
-	CConnectionMgr::getInstance()->startListening();
-	CDataBaseWrapper::getInstance()->startHandlingReceived();
-
-
-		
 }
 
 void CMainLoop::enterMainLoop()
 {
+	CNetworkAdapter::getInstance()->init(utils::init());
+	CNetworkAdapter::getInstance()->open();	
+
+	CGViewer::getInstance()->startCGViewer();
+
+	CConnectionMgr::getInstance()->startListening();
+	CDataBaseWrapper::getInstance()->startHandlingReceived();
 
 	while(!quit_)	
 	{	
-
-		//CDataBaseWrapper::getInstance()->handleReceived();
+	//string s;
+	//cout<<"$>";
+	//cin>>s;
+	
 		boost::this_thread::sleep(boost::posix_time::seconds(interval_));
 	}
 }
@@ -32,6 +37,7 @@ void CMainLoop::endMainLoop()
 	CNetworkAdapter::destroyInstance();
 	CConnectionMgr::destroyInstance(); 
 	CGViewer::destroyInstance();
+	utils::fout.close();
 }
 
 void CMainLoop::quitNow()
