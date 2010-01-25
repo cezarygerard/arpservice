@@ -192,10 +192,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\CLog.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\src\CMainLoop.cpp"
 				>
 			</File>
@@ -231,10 +227,6 @@
 			</File>
 			<File
 				RelativePath=".\src\CGViewer.hpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\CLog.hpp"
 				>
 			</File>
 			<File
