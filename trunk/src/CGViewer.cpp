@@ -160,58 +160,52 @@ void CGViewer::cleanUp()
 
 void CGViewer::refreshGUI()
 {
-	while(!stopCGViewer_)
+	if( init() == false )
+	{
+		stopCGViewer_ = true;
+	}
+
+	if( loadFiles() == false )
+	{
+		stopCGViewer_ = true;
+	}
+
+	//petla watku
+	while( !stopCGViewer_ )
 	{
 
-
-		if( init() == false )
+		//wychwytywanie zdarzen
+		while( SDL_PollEvent( &event ) )
 		{
-			stopCGViewer_ = true;
-		}
-
-		if( loadFiles() == false )
-		{
-			stopCGViewer_ = true;
-		}
-
-		//petla watku
-		while( !stopCGViewer_ )
-		{
-
-			//wychwytywanie zdarzen
-			while( SDL_PollEvent( &event ) )
+			
+			if( event.type == SDL_QUIT )
 			{
-				
-				if( event.type == SDL_QUIT )
-				{
-					//Wyjdz z aplikacji
-					stopCGViewer_ = true;
-					CMainLoop::getInstance()->quitNow();
-				}
-			}
-
-			Uint8 *keystates = SDL_GetKeyState( NULL );
-
-			//Nacisniecie ENTER
-			if( keystates[ SDLK_RETURN ] )
-			{
-				//CMainLoop::
-				
-			}
-
-			createTable();
-
-			// zamiana buforow
-			if( SDL_Flip( screen ) == -1 )
-			{
+				//Wyjdz z graficznego monitora
 				stopCGViewer_ = true;
 			}
-
-			boost::this_thread::sleep(boost::posix_time::millisec(1000/FRAMES_PER_SECOND));
 		}
 
-		cleanUp();
+		Uint8 *keystates = SDL_GetKeyState( NULL );
+
+		//Nacisniecie ENTER
+		if( keystates[ SDLK_ESCAPE ] )
+		{
+			stopCGViewer_ = true;
+		}
+
+		createTable();
+
+		// zamiana buforow
+		if( SDL_Flip( screen ) == -1 )
+		{
+			stopCGViewer_ = true;
+		}
+
+		boost::this_thread::sleep(boost::posix_time::millisec(1000/FRAMES_PER_SECOND));
 	}
+
+	cleanUp();
+	
 
 }
 
@@ -250,13 +244,13 @@ void CGViewer::createTable()
 	applySurface( SCREEN_WIDTH/2-100, 60, message, screen );
 
 	message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font.get(), str_num_of_hosts.c_str(), textColor ), boost::bind(&SafeFreeSurface, _1) ) ;   
-	applySurface( SCREEN_WIDTH/2-70, 15, message, screen );
+	applySurface( SCREEN_WIDTH/2-50, 15, message, screen );
 
 	//Uspokoj uzytkownika tekstem o oczekiwaniu
-	if(num_of_hosts == 0)
+	if(num_of_hosts == 1)
 	{
 		message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font.get(), "Kompletowanie danych...", textColor ), boost::bind(&SafeFreeSurface, _1) ) ;   
-		applySurface( start_off_x, start_off_y, message, screen );
+		applySurface( SCREEN_WIDTH/2-50, start_off_y - 100, message, screen );
 	}
 	
 	//Uspokoj uzytkownika tekstem o nadmiarze hostów
@@ -297,6 +291,12 @@ void CGViewer::startCGViewer()
 
 	stopCGViewer_ = false;
 	threadCGViewer_ = boost::thread(boost::bind(&CGViewer::refreshGUI, this));
+}
+
+void CGViewer::stopCGViewer()
+{
+	stopCGViewer_ = true;
+	threadCGViewer_.join();
 }
 
 

@@ -18,7 +18,7 @@
 #include "CDataBaseWrapper.hpp"
 #include "ActiveHost.hpp"
 #include "CGViewer.hpp"
-#include "CLog.hpp"
+
 
 
 class CMainLoop : public CSingleton<CMainLoop>
@@ -34,6 +34,8 @@ public:
 	
 
 private:
+	void showHelp();
+	bool loadParams();
 
 	bool quit_;
 	int interval_;

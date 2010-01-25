@@ -39,12 +39,62 @@ void CConnectionMgr::startListening(int port)
 	listeningThread_ = boost::thread(boost::bind(&CConnectionMgr::listen, this, port));
 }
 
+void CConnectionMgr::addIPAddress(std::string ip)
+{
+	 if(ipSet_.insert(ip).second)
+	 {
+		cout<<"Adres IP " << ip << " dodano do grupy klientow" << endl;
+	 }
+	 else
+		cout<<"Adres IP " << ip << " jest juz w grupie klientow" << endl;
+	
+}
+
+void CConnectionMgr::removeIPAddress(std::string ip)
+{
+	if(ipSet_.erase(ip) == 1)
+	 {
+		cout<<"Adres IP " << ip << " usunieto z grupy klientow" << endl;
+	 }
+	 else
+		cout<<"Adres IP " << ip << " nie nalezy do grupy klientow" << endl;
+
+}
+
+void CConnectionMgr::startConnections(int port)
+{
+	stopConnecting_ = true;
+	connectingThread_.join();
+	stopConnecting_ = false;
+	connectingThread_ = boost::thread(boost::bind(&CConnectionMgr::connections, this, port));
+}
+
+void CConnectionMgr::stopConnections()
+{
+	stopConnecting_ = true;
+	connectingThread_.join();
+}
+
+void CConnectionMgr::connections(int port)
+{
+	cout << "nawiazywanie polaczen..." << endl;
+	while (!stopConnecting_)
+	{
+		{
+			boost::recursive_mutex::scoped_lock recursive_lock(recursive_mutex);
+			for_each(ipSet_.begin(), ipSet_.end(), boost::bind(&CConnectionMgr::connect, this, _1, port));
+		}
+		boost::this_thread::sleep(boost::posix_time::seconds(30));
+	}
+	
+}
+
 void CConnectionMgr::connect(std::string ip, int port)
 {
 	stopListening_ = true;
 	listeningThread_.join();
 
-	boost::mutex::scoped_lock scoped_lock(mutex);
+	boost::recursive_mutex::scoped_lock recursive_lock(recursive_mutex);
 	IPaddress ip_;
 	TCPsocket csd_ ;
 //	SDLNet_SocketSet sockSet_;
@@ -62,7 +112,8 @@ void CConnectionMgr::connect(std::string ip, int port)
 //		isClient_ = true;
 		sockSet_= SDLNet_AllocSocketSet(1);
 		SDLNet_TCP_AddSocket(sockSet_, csd_);
-		receivingThread_ = boost::thread(boost::bind(&CConnectionMgr::receiveInfo, this, csd_));
+		receiveInfo(csd_);
+		//receivingThread_ = boost::thread(boost::bind(&CConnectionMgr::receiveInfo, this, csd_));
 
 	}
 	else
@@ -218,10 +269,10 @@ HostsMapPtr CConnectionMgr::receiveInfo(TCPsocket csd_)
 							
 							catch (boost::archive::archive_exception e)
 							{
-								utils::fout<<"CConnectionMgr::receiveInfo nie udalo sie odebrac informacji o hoscie "<<e.code<<endl;
+								cout<<"CConnectionMgr::receiveInfo nie udalo sie odebrac informacji o hoscie "<<e.code<<endl;
 							}
 							
-							utils::fout<<"CConnectionMgr::receiveInfo "<<utils::iptos(ah->ip)<<endl;
+							cout<<"CConnectionMgr::receiveInfo "<<utils::iptos(ah->ip)<<endl;
 							if(ah->start[0] != '0')
 							{
 								hostsMap->insert(pair<utils::MacAdress,ActiveHost>(ah->mac,*ah) );

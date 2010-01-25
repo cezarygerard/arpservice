@@ -11,6 +11,8 @@
 #define CONNECTION_MGR_H
 
 #include <vector>
+#include <set>
+#include <algorithm>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
@@ -35,38 +37,50 @@ struct lessMAC;
 
 typedef boost::shared_ptr< map<utils::MacAdress,ActiveHost,utils::lessMAC> > HostsMapPtr;
 
-class CConnectionMgr : public CSingleton<CConnectionMgr>//, public CTimerObserver 
+class CConnectionMgr : public CSingleton<CConnectionMgr>
 {
 	friend class CSingleton<CConnectionMgr>;
 
 public:
 	
-	void startListening(int port = 20011);
+	void addIPAddress(std::string ip);
+	void removeIPAddress(std::string ip);
 
-	void connect(std::string ip, int port = 20011);
+	void startListening(int port = 20011);
+	void startConnections(int port = 20011);
+	void stopConnections();
 
 private:
 
 	CConnectionMgr();
 	
 	~CConnectionMgr();
-	
+	// metoda zwiazana z watkiem nasluchiwania
 	void listen(int port);
-
+	// metoda zwiazana z watkiem polaczen
+	void connections(int port);
+	// laczenie
+	void connect(std::string ip, int port);
+	// wysylanie danych od siebie
 	void sendInfo(TCPsocket csd_);
-
+	// odbieranie danych do mapy
 	HostsMapPtr receiveInfo(TCPsocket csd_);
-
+	// watek nasluchiwania
 	boost::thread listeningThread_;
-
+	// flaga watku
 	bool stopListening_;
-
+	// watek cyklicznego laczenia
+	boost::thread connectingThread_;
+	// flaga watku
+	bool stopConnecting_;
+	// watek wysylania
 	boost::thread sendingThread_;
-
-	boost::thread receivingThread_;
-
+	// watek odbierania
+	//boost::thread receivingThread_;
 	///obiekt mutex synchronizujacy watki
 	boost::mutex mutex;
+	///obiekt mutex synchronizujacy watki z zagnie¿d¿eniem rekursywnym
+	boost::recursive_mutex recursive_mutex;
 
 	std::vector<boost::shared_ptr<boost::thread> > sendingThreads_;
 
@@ -74,6 +88,8 @@ private:
 
 	const int static MAX_BUFF = 1024;
 	const string static QUIT;
+
+	std::set<std::string> ipSet_; 
 
 	struct Buffer
 	{
