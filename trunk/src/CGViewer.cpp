@@ -94,12 +94,10 @@ void CGViewer::applySurface( int x, int y,  boost::shared_ptr<SDL_Surface> sourc
 
 bool CGViewer::init()
 {
-    //Inicjalizacja podsystemow
-    if( SDL_Init( SDL_INIT_EVERYTHING ) == -1 )
+	if( SDL_Init( SDL_INIT_VIDEO ) == -1 )
     {
-        return false;
+       cout << "Inicjalizacja SDL nie powiodla sie" << endl;
     }
-
     //Inicjalizacja powierzchni wyswietlania
     screen = SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, SDL_SWSURFACE );
 
@@ -239,7 +237,7 @@ void CGViewer::createTable()
 	ostringstream ss;
 	ss << num_of_hosts;
 
-	string str_num_of_hosts = "Aktywnych hostow: " + ss.str();
+	string str_num_of_hosts = "Liczba hostow: " + ss.str();
 
 	if(num_of_hosts > limit) 
 		num_of_hosts = limit;

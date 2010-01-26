@@ -308,6 +308,11 @@ void CDataBaseWrapper::loadSpecificHosts(std::string net_addr)
 			ah.ttl = -1;
 			selected_hosts.insert( pair<utils::MacAdress,ActiveHost>(ah.mac,ah) );
 		}	
+	cout << "Siec zaladowana do podgladu" << endl;
+	}
+	else
+	{
+		cout << "Ladowanie archiwalnej sieci nie powiodlo sie! "<< endl;
 	}
 	CGViewer::getInstance()->refreshCGViewerActiveHosts(selected_hosts, utils::SELECTED);
 }
