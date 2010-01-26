@@ -39,8 +39,6 @@ void CMainLoop::enterMainLoop()
 		string token;
 		// pobierz ze strumienia pierwsza dana, ktora powinna byc token'em
 		data >> token;
-		//cout << "|" << token << "|" << endl;
-		//cout << endl;
 		if(token == "")
 			;
 		///wydruk na ekran
@@ -110,6 +108,8 @@ void CMainLoop::enterMainLoop()
 			if(alt == "?" || alt == "help")
 			{
 				cout << "[lo ho 'mac'], [load host 'mac'] w celu zaladowania historii hosta o danym MAC\n";
+				cout << "[lo ho 'mac' 'start'], [load host 'mac' 'start'] w celu zaladowania historii hosta o danym MAC od zadanej daty 'start' mm-dd-rrr\n";
+				cout << "[lo ho 'mac' 'start' 'stop'], [load host 'mac' 'start' 'stop'] w celu zaladowania historii hosta o danym MAC w zadanych ramach 'start' 'stop' mm-dd-rrr\n";
 				cout << "[lo net 'netaddr'], [load network 'netaddr'] w celu zaladowania stanu danej sieci z bazy\n";
 				cout << "[pr net], [print netaddr] aby wyswietlic adresy sieci do ktorych naleza hosty z bazy\n";
 			}
@@ -121,10 +121,9 @@ void CMainLoop::enterMainLoop()
 
 				string start;
 				data >> start;
-				cout <<start;
+		
 				string stop;
 				data >> stop;
-				cout << stop;
 
 				if(mac.length() == 12 && start.length() == 0 && stop.length() == 0)
 					CDataBaseWrapper::getInstance()->showHostHistory(mac);
