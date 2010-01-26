@@ -266,6 +266,7 @@ HostsMapPtr CConnectionMgr::receiveInfo(TCPsocket csd_)
 			else if (numready) 
 			{
 				Buffer b;
+				
 				if (SDLNet_TCP_Recv(csd_, &(b.buffer_), MAX_BUFF) > 0)
 				{
 					ActiveHost * ah;// = new ActiveHost();
@@ -303,7 +304,8 @@ HostsMapPtr CConnectionMgr::receiveInfo(TCPsocket csd_)
 						}
 					}
 				}
-			}	
+			}
+			boost::this_thread::sleep(boost::posix_time::millisec(utils::RECEIVE_INFO_PERIOD));
 		}
 
 		SDLNet_TCP_Close(csd_);
@@ -311,3 +313,76 @@ HostsMapPtr CConnectionMgr::receiveInfo(TCPsocket csd_)
 
 	return hostsMap;
 }
+//
+//HostsMapPtr CConnectionMgr::receiveInfo(TCPsocket csd_)
+//{
+//HostsMapPtr hostsMap = HostsMapPtr(new std::map<utils::MacAdress, ActiveHost, utils::lessMAC>);
+//boost::mutex::scoped_lock scoped_lock(mutex);
+//{
+// bool quit = false;
+// 
+// while(!quit)
+// {
+//  int numready = SDLNet_CheckSockets(sockSet_,100);
+//  if (numready == -1) 
+//  {
+//   printf("SDLNet_CheckSockets: %s  numready: %d\n", SDLNet_GetError(),numready );
+//  }
+//  else if (numready) 
+//  {
+//   Buffer b;
+//   if (SDLNet_TCP_Recv(csd_, &(b.buffer_), MAX_BUFF) > 0)
+//   {
+//    ActiveHost * ah;// = new ActiveHost();
+//    char * c = b.buffer_;
+//    string s (c);
+//    
+//    if(s.substr(0,QUIT.length()) == QUIT)
+//    { 
+//     quit = true;
+//    }
+//    else
+//    {
+//     try
+//     {
+//      std::istringstream iss(s);
+//      {
+//     // try
+//     // {
+//      boost::archive::xml_iarchive ia(iss);
+//      ia >> BOOST_SERIALIZATION_NVP(ah) ;
+//
+//     // boost::archive::text_iarchive ia(iss);
+//     // ia >;> (ah) ;
+//     // }
+//      
+//     // catch (boost::archive::archive_exception e)
+//     // {
+//     //  cout<<"CConnectionMgr::receiveInfo nie udalo sie odebrac informacji o hoscie "<<e.code<<endl;
+//     // }
+//      hostsMap->insert(pair<utils::MacAdress,ActiveHost>(ah->mac,*ah) );
+//      cout<<"CConnectionMgr::receiveInfo "<<utils::iptos(ah->ip)<<endl;
+//      //if(ah->start[0] != '0')
+//      //{
+//     //  hostsMap->insert(pair<utils::MacAdress,ActiveHost>;(ah->mac,*ah) );
+//     //
+//     // }
+//      }
+//     }
+//     
+//     catch (boost::archive::archive_exception e)
+//     {
+//      cout<<"CConnectionMgr::receiveInfo nie udalo sie odebrac informacji o hoscie "<<e.code<<endl;
+//     }
+//
+//    }
+//   }
+//  }
+// } 
+//
+//
+// SDLNet_TCP_Close(csd_);
+//}
+//
+//return hostsMap;
+//}

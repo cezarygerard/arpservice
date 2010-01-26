@@ -89,7 +89,6 @@ void CDataBaseWrapper::handleReceived()
 		//	utils::MacAdress currentMac = received_.front().mac;
 	//	activeHosts_[currentMac].		
 	}
-	if(utils::SWITCH_VIEW == false)
 	CGViewer::getInstance()->refreshCGViewerActiveHosts(activeHosts_);
 }
 
@@ -168,8 +167,7 @@ void CDataBaseWrapper::handleReceivedExternal()
 		receivedExternal_.pop();
 	
 	}
-	if(utils::SWITCH_VIEW == true)
-		CGViewer::getInstance()->refreshCGViewerActiveHosts(externalHosts_);
+	CGViewer::getInstance()->refreshCGViewerActiveHosts(externalHosts_, false);
 }
 
 void CDataBaseWrapper::saveHostToDB(ActiveHost& host)
@@ -227,10 +225,22 @@ void CDataBaseWrapper::saveAllHosts()
 {
 	boost::mutex::scoped_lock scoped_lock(mutex_);
 	boost::mutex::scoped_lock scoped_lock2(mutexDatabase_);
+	boost::mutex::scoped_lock scoped_lock3(mutexExternal_);
 
 	map<utils::MacAdress,ActiveHost, utils::lessMAC>::iterator it;
 	string currentTime = utils::getTime();
 	for(it = activeHosts_.begin(); it != activeHosts_.end(); it++ )
+	{
+		if((*it).second.ttl>0)
+		{
+			(*it).second.ttl = - 1;
+			//zapisz info do bazy//
+			(*it).second.stop =currentTime;
+			saveHostToDB((*it).second);
+		}	
+	}
+	//hosty od goscia
+	for(it = externalHosts_.begin(); it != externalHosts_.end(); it++ )
 	{
 		if((*it).second.ttl>0)
 		{

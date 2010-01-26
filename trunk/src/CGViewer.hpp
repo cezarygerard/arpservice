@@ -31,6 +31,8 @@
 
 using namespace utils;
 
+typedef std::vector<boost::tuple<utils::IPAddress, utils::MacAdress, int>> hostsVector;
+
 class CGViewer : public CSingleton<CGViewer>
 {
 	friend CSingleton<CGViewer>;
@@ -40,7 +42,8 @@ public:
 	//Metoda uruchamia watek odbierania pakietow
 	void startCGViewer();
 	void stopCGViewer();
-	void refreshCGViewerActiveHosts(std::map<utils::MacAdress,ActiveHost, utils::lessMAC>& m);
+	void switchView(const bool local_view = true);
+	void refreshCGViewerActiveHosts(std::map<utils::MacAdress,ActiveHost, utils::lessMAC>& m, bool local = true);
 	
 
 private:
@@ -58,8 +61,10 @@ private:
 	CGViewer();
 	~CGViewer();
 
-	std::vector<boost::tuple<utils::IPAddress, utils::MacAdress, int>> activeHosts_;
+	hostsVector activeHosts_;
+	hostsVector externalHosts_;
 
+	bool localView_;
 	///do synchronizacji - zeby na raz kilku nie czytalo/zapisywali
 	boost::shared_mutex mutex_;
 
