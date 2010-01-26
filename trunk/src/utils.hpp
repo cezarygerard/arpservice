@@ -38,6 +38,8 @@ namespace utils
 	static int ARP_SEND_PERIOD = 15; //seconds
 	static int TTL = 7; 
 	static int MAX_TTL = TTL * ARP_SEND_PERIOD;
+	const int LISTENING_PERIOD = 10; //ms
+	const int CONNECTION_PERIOD = 60;//seconds
 	const int MAX_TTL_EXTERNAL = 2; // czas zycia hosta pobieranego od klienta
 	const int RECEIVER_SLEEP_PERIOD = 1; //ms
 	const int HANDLE_SLEEP_PERIOD = 1; //seconds
@@ -53,6 +55,8 @@ namespace utils
 	const int Y_LIMIT = 7;
 
 	const int FRAMES_PER_SECOND = 20; // dzielnik
+
+	static bool SWITCH_VIEW = false;
 
 	struct IPAddress
 	{

@@ -89,6 +89,7 @@ void CDataBaseWrapper::handleReceived()
 		//	utils::MacAdress currentMac = received_.front().mac;
 	//	activeHosts_[currentMac].		
 	}
+	if(utils::SWITCH_VIEW == false)
 	CGViewer::getInstance()->refreshCGViewerActiveHosts(activeHosts_);
 }
 
@@ -116,8 +117,6 @@ void CDataBaseWrapper::enqueReceivedExternal(ExternalHostsMapPtr externalHosts)
 	for(it; it != end; ++it )
 	{
 		receivedExternal_.push((*it).second);
-		////
-		cout << utils::iptos((*it).second.ip) << endl;
 	}
 	
 }
@@ -169,8 +168,8 @@ void CDataBaseWrapper::handleReceivedExternal()
 		receivedExternal_.pop();
 	
 	}
-	//SOON
-	//CGViewer::getInstance()->refreshCGViewerActiveHosts(activeHosts_);
+	if(utils::SWITCH_VIEW == true)
+		CGViewer::getInstance()->refreshCGViewerActiveHosts(externalHosts_);
 }
 
 void CDataBaseWrapper::saveHostToDB(ActiveHost& host)
