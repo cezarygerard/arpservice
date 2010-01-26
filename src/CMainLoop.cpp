@@ -38,7 +38,7 @@ void CMainLoop::enterMainLoop()
 		//cout << endl;
 		if(token == "")
 			;
-		else if(token == "show" || token == "sh")
+		else if(token == "print" || token == "pr")
 		{
 			string alt;
 			data >> alt;
@@ -48,17 +48,28 @@ void CMainLoop::enterMainLoop()
 				cout << "Okres rozsylania ARP SEND_PERIOD : " << utils::ARP_SEND_PERIOD << endl;
 				cout << "Okres zycia hosta TTL : " << utils::TTL << endl;
 			}
+			else if(alt == "sql"){
+				CDataBaseWrapper::getInstance()->showNetAddresses();
+			}
 			else
 			{
-				if(alt == "external" || alt == "ex")
-				CGViewer::getInstance()->switchView(false);
-				
-				if(alt == "local" || alt == "lo")
-				CGViewer::getInstance()->switchView(true);
-
-				CGViewer::getInstance()->startCGViewer();
-				cout << "Wyswietlanie monitora sieci" << endl;
+				cerr << "Wprowadzono bledny parametr print, wprowadz ? w celu otrzymania listy komend" << endl;
 			}
+		}
+		else if(token == "show" || token == "sh")
+		{
+			string alt;
+			data >> alt;
+		
+			if(alt == "external" || alt == "ex")
+			CGViewer::getInstance()->switchView(false);
+			
+			if(alt == "local" || alt == "lo")
+			CGViewer::getInstance()->switchView(true);
+
+			CGViewer::getInstance()->startCGViewer();
+			cout << "Wyswietlanie monitora sieci" << endl;
+		
 		}
 		else if(token == "hide" || token == "hi")
 		{
@@ -191,15 +202,18 @@ void CMainLoop::showHelp()
 	cout << "[co], [connect] w celu otwarcia polaczen z grupa klientow\n";
 	cout << "[di], [disconnect] w celu zamkniecia polaczen z grupa klientow\n";
 	cout << endl;
-	cout << "[sh cl], [show clients] aby wyswietlic liste klientow\n";
+	cout << "[pr cl], [print clients] aby wyswietlic liste klientow\n";
+	cout << "[pr ttl], [print ttl] aby wyswietlic wartosci parametrow TTL i SEND_PERIOD\n";
+	cout << "[pr sql], [print sql] aby wyswietlic adresy sieci do ktorych naleza hosty z bazy\n";
+	cout << endl;
 	cout << "[sh], [show] aby wyswietlic graficzny monitor sieci w obecnym trybie\n";
-	cout << "[sh ttl], [show ttl] aby wyswietlic wartosci parametrow TTL i SEND_PERIOD\n";
 	cout << "[sh lc], [show local] aby wyswietlic stan sieci w ktorej pracuje aplikacja\n";
 	cout << "[sh ex], [show external] aby wyswietlic stan sieci dolaczonych klientow\n";
+	cout << "[hi], [hide] aby ukryc graficzny monitor sieci\n";
 	cout << endl;
 	cout << "[set TTL 'ttl'] aby ustawic TTL\n";
 	cout << "[set SEND_PERIOD 'send_period'] aby ustawic okres rozsylania ARP\n";
-	cout << "[hi], [hide] aby ukryc graficzny monitor sieci\n";
+	
 
 	
 }

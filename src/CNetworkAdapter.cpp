@@ -283,7 +283,7 @@ void CNetworkAdapter::captureARPs()
 
 					ah.ip = arp_h->spa;
 					ah.mac = arp_h->sha;
-					ah.netmask = netMask_;
+					ah.netaddr = utils::iptoNetAddr(ah.ip, netMask_);
 					CDataBaseWrapper::getInstance()->enqueReceived(ah);
 				}
 			}
@@ -296,7 +296,7 @@ void CNetworkAdapter::captureARPs()
 	}
 }
 
-boost::tuple<utils::IPAddress, utils::MacAdress, utils::IPAddress>  CNetworkAdapter::getIPMacandNetMask() const
+boost::tuple<utils::IPAddress, utils::MacAdress, utils::IPAddress>  CNetworkAdapter::getIPMacandNetAddr() const
 {
-	return boost::make_tuple(ip_, mac_, netMask_);
+	return boost::make_tuple(ip_, mac_, utils::iptoNetAddr(ip_,netMask_));
 }

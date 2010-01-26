@@ -13,7 +13,7 @@ ActiveHost::ActiveHost() : ttl(MAX_TTL), start("0000-00-00-00-00-00"), stop("000
 {
 	ip;
 	mac;
-	netmask;
+	netaddr;
 	ip.ip[0] = 0;
 	ip.ip[1] = 0;
 	ip.ip[2] = 0;
@@ -26,10 +26,10 @@ ActiveHost::ActiveHost() : ttl(MAX_TTL), start("0000-00-00-00-00-00"), stop("000
 	mac.m[4] = 0;
 	mac.m[5] = 0;
 	
-	netmask.ip[0] = 0;
-	netmask.ip[1] = 0;
-	netmask.ip[2] = 0;
-	netmask.ip[3] = 0; 
+	netaddr.ip[0] = 0;
+	netaddr.ip[1] = 0;
+	netaddr.ip[2] = 0;
+	netaddr.ip[3] = 0; 
 }
 
 ActiveHost::~ActiveHost()

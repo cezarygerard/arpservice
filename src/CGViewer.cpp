@@ -24,6 +24,7 @@ boost::shared_ptr<TTF_Font> font_large;
 
 //Kolory czcionek
 SDL_Color textColor = { 255, 255, 255 }; 
+SDL_Color textColorBlack = { 0, 0, 0 }; 
 SDL_Color textColorRed = { 255, 0, 0 }; 
 
 
@@ -121,19 +122,19 @@ bool CGViewer::init()
 
 bool CGViewer::loadFiles()
 {
-    background = loadImage( "../res/background.png" );
+    background = loadImage( "../res/background_L.png" );
     if( background.get() == NULL )
     {
         return false;
     }
 
-	active = loadImage( "../res/active.png" );
+	active = loadImage( "../res/active_s.png" );
     if( active.get() == NULL )
     {
         return false;
     }
 
-	inactive = loadImage( "../res/inactive.png" );
+	inactive = loadImage( "../res/inactive_s.png" );
     if( inactive.get() == NULL )
     {
         return false;
@@ -224,27 +225,27 @@ void CGViewer::createTable()
 
 	int i = 0;
 	int num_of_hosts = v.size();
-
+	//int num_of_hosts = 300;
+	int limit = X_LIMIT*Y_LIMIT;
 	ostringstream ss;
 	ss << num_of_hosts;
 
 	string str_num_of_hosts = "Aktywnych hostow: " + ss.str();
 
-	if(num_of_hosts > 84) 
-		num_of_hosts = 84;
+	if(num_of_hosts > limit) 
+		num_of_hosts = limit;
+	
 
-	int max_x = static_cast<int>(sqrt(static_cast<double>(num_of_hosts)) + 3);
-	int max_y = static_cast<int>(sqrt(static_cast<double>(num_of_hosts)));
-	if(num_of_hosts%2 == 0)
-		max_y += 1;
+	int max_y = Y_LIMIT;
+	int max_x = num_of_hosts/max_y + 1; //static_cast<int>(sqrt(static_cast<double>(num_of_hosts)) + 3);
 	
 	int start_off_x, start_off_y;
 
 	if(max_x >=  X_LIMIT) max_x = X_LIMIT;
 	if(max_y >= Y_LIMIT) max_y =  Y_LIMIT;
 
-	start_off_x = (SCREEN_WIDTH - max_x*PICTURE_OFFSET)/2;
-	start_off_y = (SCREEN_HEIGHT + 100 - max_y*PICTURE_OFFSET)/2;
+	start_off_x = (SCREEN_WIDTH - max_x*PICTURE_OFFSET_X)/2;
+	start_off_y = (SCREEN_HEIGHT + 100 - max_y*PICTURE_OFFSET_Y)/2;
 
 	applySurface( 0, 0, background, screen );
 	
@@ -262,20 +263,20 @@ void CGViewer::createTable()
 
 	//liczba hostow
 	message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font.get(), str_num_of_hosts.c_str(), textColor ), boost::bind(&SafeFreeSurface, _1) ) ;   
-	applySurface( SCREEN_WIDTH/2-50, 15, message, screen );
+	applySurface( SCREEN_WIDTH/2-50, 30, message, screen );
 
 	//Uspokoj uzytkownika tekstem o oczekiwaniu
 	if(num_of_hosts == 1)
 	{
 		message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font.get(), "Kompletowanie danych...", textColor ), boost::bind(&SafeFreeSurface, _1) ) ;   
-		applySurface( SCREEN_WIDTH/2-50, start_off_y - 100, message, screen );
+		applySurface( SCREEN_WIDTH/2-50, 15, message, screen );
 	}
 	
-	//Uspokoj uzytkownika tekstem o nadmiarze hostów
-	if(num_of_hosts >= 84)
+	//Uspokoj uzytkownika tekstem o nadmiarze hostów  
+	if(num_of_hosts >= limit)
 	{
 		message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font.get(), "Osiagnieto limit wyswietlanych hostow!", textColorRed ), boost::bind(&SafeFreeSurface, _1) ) ;   
-		applySurface( SCREEN_WIDTH/2-120, 40, message, screen );
+		applySurface( SCREEN_WIDTH/2-80, 40, message, screen );
 	}
 	for(int y = 0; y < max_y; y++)
 		for(int x = 0; x < max_x; x++)
@@ -285,18 +286,24 @@ void CGViewer::createTable()
 				//Zaleznie od TTL pokaz odpowiednia ikone
 				if(boost::get<2>(v[i]) > 0)
 				{
-					applySurface( start_off_x + (x * PICTURE_OFFSET), start_off_y + (y * PICTURE_OFFSET), active, screen );
+					applySurface( start_off_x + (x * PICTURE_OFFSET_X), start_off_y + (y * PICTURE_OFFSET_Y), active, screen );
 				}
 				else if(boost::get<2>(v[i]) <= 0)
 				{
-					applySurface( start_off_x + (x * PICTURE_OFFSET), start_off_y + (y * PICTURE_OFFSET), inactive, screen );
+					applySurface( start_off_x + (x * PICTURE_OFFSET_X), start_off_y + (y * PICTURE_OFFSET_Y), inactive, screen );
 				}
-				// Wypisz IP
-				message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font.get(), utils::iptos(boost::get<0>(activeHosts_[i])).c_str(), textColor ), boost::bind(&SafeFreeSurface, _1) ) ;   
-				applySurface( start_off_x + (x * PICTURE_OFFSET), start_off_y + active->h + (y * PICTURE_OFFSET), message, screen );
-				// Wypisz MAC
-				message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font.get(), utils::macToS(boost::get<1>(activeHosts_[i])).c_str(), textColor ), boost::bind(&SafeFreeSurface, _1) ) ;   
-				applySurface( start_off_x + (x * PICTURE_OFFSET), start_off_y + active->h + 12 + (y * PICTURE_OFFSET), message, screen );
+				//// Wypisz IP
+				message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font.get(), utils::iptos(boost::get<0>(activeHosts_[i])).c_str(), textColorBlack ), boost::bind(&SafeFreeSurface, _1) ) ;   
+				applySurface( start_off_x + (x * PICTURE_OFFSET_X) + active->w + 1, start_off_y + (y * PICTURE_OFFSET_Y), message, screen );
+				//// Wypisz MAC
+				message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font.get(), utils::macToS(boost::get<1>(activeHosts_[i])).c_str(), textColorBlack ), boost::bind(&SafeFreeSurface, _1) ) ;   
+				applySurface( start_off_x + (x * PICTURE_OFFSET_X) + active->w + 1, start_off_y + 12 + (y * PICTURE_OFFSET_Y), message, screen );
+				//// Wypisz IP
+				//message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font.get(), utils::iptos(boost::get<0>(activeHosts_[0])).c_str(), textColor ), boost::bind(&SafeFreeSurface, _1) ) ;   
+				//applySurface( start_off_x + (x * PICTURE_OFFSET_X) + active->w, start_off_y + (y * PICTURE_OFFSET_Y), message, screen );
+				//// Wypisz MAC
+				//message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font.get(), utils::macToS(boost::get<1>(activeHosts_[0])).c_str(), textColor ), boost::bind(&SafeFreeSurface, _1) ) ;   
+				//applySurface( start_off_x + (x * PICTURE_OFFSET_X) + active->w , start_off_y + 12 + (y * PICTURE_OFFSET_Y), message, screen );
 			}
 			i++;
 		}

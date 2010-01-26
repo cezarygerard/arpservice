@@ -77,9 +77,8 @@ void CConnectionMgr::showConnections()
 		cout << "\n* " << *it;
 	}
 	cout << "\n****" << endl;
-
-
 }
+
 void CConnectionMgr::stopConnections()
 {
 	stopConnecting_ = true;

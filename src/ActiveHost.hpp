@@ -34,7 +34,7 @@ public:
 
 	IPAddress ip;
 
-	IPAddress netmask;
+	IPAddress netaddr;
 
 	//poczatek aktywnosci w sieci format YYYY-MM-DD-HH-MM-SS
 	string start;
@@ -54,7 +54,7 @@ public:
     {
 		ar & BOOST_SERIALIZATION_NVP(ip.ip);
 		ar & BOOST_SERIALIZATION_NVP(mac.m);
-		ar & BOOST_SERIALIZATION_NVP(netmask.ip);
+		ar & BOOST_SERIALIZATION_NVP(netaddr.ip);
 		ar & BOOST_SERIALIZATION_NVP(ttl);
 		ar & BOOST_SERIALIZATION_NVP(start);
 		ar & BOOST_SERIALIZATION_NVP(stop);
@@ -65,7 +65,7 @@ public:
     {
 		ar & BOOST_SERIALIZATION_NVP(ip.ip);
 		ar & BOOST_SERIALIZATION_NVP(mac.m);
-		ar & BOOST_SERIALIZATION_NVP(netmask.ip);
+		ar & BOOST_SERIALIZATION_NVP(netaddr.ip);
 		ar & BOOST_SERIALIZATION_NVP(ttl);
 		ar & BOOST_SERIALIZATION_NVP(start);
 		ar & BOOST_SERIALIZATION_NVP(stop);

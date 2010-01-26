@@ -328,4 +328,13 @@ bool lessMAC::operator()(const MacAdress& m1, const MacAdress& m2)const
 		return ip;
 	}
 
+	IPAddress iptoNetAddr(IPAddress ip, IPAddress mask)
+	{
+		IPAddress net_addr;
+		for (int i = 0;i<4; i++)
+		{	
+			net_addr.ip[i] = ip.ip[i] & mask.ip[i];
+		}
+		return net_addr;
+	}
 }

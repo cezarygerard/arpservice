@@ -47,9 +47,12 @@ public:
 	void removeIPAddress(std::string ip);
 
 	void startListening(int port = 20011);
+
 	void startConnections(int port = 20011);
-	void showConnections();
 	void stopConnections();
+	
+	void showConnections();
+	
 
 private:
 
