@@ -218,16 +218,17 @@ bool lessMAC::operator()(const MacAdress& m1, const MacAdress& m2)const
 		GetLocalTime(&lpSystemTime);
 		
 		stringstream out;
+		out<<lpSystemTime.wYear<<"-";
+
 		if(lpSystemTime.wMonth<10)
 			out<<"0"; //mozna bylo uzyc setw(n)
 		out<<lpSystemTime.wMonth<<"-";
 
 		if(lpSystemTime.wDay<10)
 			out<<"0";
-		out<<lpSystemTime.wDay<<"-";
+		out<<lpSystemTime.wDay<<" ";
 
-		out<<lpSystemTime.wYear<<" ";
-
+		
 		//if(lpSystemTime.wHour<10)
 		//	out<<"0";
 		out<<lpSystemTime.wHour<<":";

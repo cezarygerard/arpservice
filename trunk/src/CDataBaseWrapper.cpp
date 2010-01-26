@@ -250,17 +250,13 @@ void CDataBaseWrapper::showHostHistory(std::string mac, std::string start, std::
 
 	stringstream selectSql;
 
-	selectSql<<"select * from arprecord where mac ='"<<mac<<"' AND start BETWEEN '"<<start<<"' AND '"<<stop<<"' ORDER BY start ASC;";
+	selectSql<<"select * from arprecord where mac ='"<<mac<<"' AND start BETWEEN '"<<start<< " 00:00:00' AND '"<<stop<<" 00:00:00' ORDER BY start ASC;";
 	cout << selectSql.str();
 
-	/// CZY IP?
 	cout << "\n\n****\n* Historia aktywnosci hosta o MAC: " << mac <<"\n*";
 	sqlite3_stmt *statement;
 	if (sqlite3_prepare_v2(database, selectSql.str().c_str(), -1, &statement, NULL) == SQLITE_OK) {
 		while (sqlite3_step(statement) == SQLITE_ROW) {
-			//int id = sqlite3_column_int(statement, 0);
-			
-			//char *str = (char *)sqlite3_column_text(statement, 1);
 	
 			char *str = (char *)sqlite3_column_text(statement, 5);
 			cout << "\n* NetAddr: " << string(str);
