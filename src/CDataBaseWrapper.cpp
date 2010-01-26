@@ -247,7 +247,7 @@ void CDataBaseWrapper::showHostHistory(std::string mac)
 	cout << "\n****\n* Historia aktywnosci hosta o MAC: " << mac <<"\n*";
 	stringstream selectSql;
 
-	selectSql<<"select * from arprecord where mac ='"<<mac<<"' ORDER BY by start ASC;";
+	selectSql<<"select * from arprecord where mac ='"<<mac<<"' ORDER BY start ASC;";
 	sqlite3_stmt *statement;
 	if (sqlite3_prepare_v2(database, selectSql.str().c_str(), -1, &statement, NULL) == SQLITE_OK) {
 		while (sqlite3_step(statement) == SQLITE_ROW) {
