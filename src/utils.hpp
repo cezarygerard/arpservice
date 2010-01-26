@@ -45,7 +45,7 @@ namespace utils
 	const int CONNECTION_PERIOD = 60;//seconds
 	const int RECEIVE_INFO_PERIOD = 10;//ms
 
-	const int RECEIVER_SLEEP_PERIOD = 1; //ms
+	const int RECEIVER_SLEEP_PERIOD = 10; //ms
 	const int HANDLE_SLEEP_PERIOD = 1; //seconds
 	const int ETH_HEADER_OFFSET = 14; //bytes
 
