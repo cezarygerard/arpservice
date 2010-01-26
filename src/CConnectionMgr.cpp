@@ -100,6 +100,7 @@ void CConnectionMgr::connections(int port)
 				boost::recursive_mutex::scoped_lock recursive_lock(recursive_mutex);
 				for_each(ipSet_.begin(), ipSet_.end(), boost::bind(&CConnectionMgr::connect, this, _1, port));
 			}
+			CDataBaseWrapper::getInstance()->handleReceivedExternal();
 			boost::this_thread::sleep(boost::posix_time::seconds(60));
 		}
 	}
@@ -135,7 +136,6 @@ void CConnectionMgr::connect(std::string ip, int port)
 		sockSet_= SDLNet_AllocSocketSet(1);
 		SDLNet_TCP_AddSocket(sockSet_, csd_);
 		CDataBaseWrapper::getInstance()->enqueReceivedExternal(receiveInfo(csd_));
-	
 	}
 	else
 	{
