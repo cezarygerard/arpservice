@@ -89,6 +89,7 @@ void CMainLoop::enterMainLoop()
 			{
 				cout << "[lo ho 'mac'], [load host 'mac'] w celu zaladowania historii hosta o danym MAC\n";
 				cout << "[lo net 'netaddr'], [load network 'netaddr'] w celu zaladowania stanu danej sieci z bazy\n";
+				cout << "[pr net], [print netaddr] aby wyswietlic adresy sieci do ktorych naleza hosty z bazy\n";
 			}
 
 			else if(alt == "host" || alt == "ho")
