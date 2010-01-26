@@ -306,17 +306,11 @@ void CGViewer::createTable()
 				if(localView_ == utils::SELECTED)
 					applySurface( start_off_x + (x * PICTURE_OFFSET_X), start_off_y + (y * PICTURE_OFFSET_Y), unknown, screen );
 				//// Wypisz IP
-				message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font.get(), utils::iptos(boost::get<0>(activeHosts_[i])).c_str(), textColorBlack ), boost::bind(&SafeFreeSurface, _1) ) ;   
+				message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font.get(), utils::iptos(boost::get<0>(v[i])).c_str(), textColorBlack ), boost::bind(&SafeFreeSurface, _1) ) ;   
 				applySurface( start_off_x + (x * PICTURE_OFFSET_X) + active->w + 1, start_off_y + (y * PICTURE_OFFSET_Y), message, screen );
 				//// Wypisz MAC
-				message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font.get(), utils::macToS(boost::get<1>(activeHosts_[i])).c_str(), textColorBlack ), boost::bind(&SafeFreeSurface, _1) ) ;   
+				message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font.get(), utils::macToS(boost::get<1>(v[i])).c_str(), textColorBlack ), boost::bind(&SafeFreeSurface, _1) ) ;   
 				applySurface( start_off_x + (x * PICTURE_OFFSET_X) + active->w + 1, start_off_y + 12 + (y * PICTURE_OFFSET_Y), message, screen );
-				//// Wypisz IP
-				//message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font.get(), utils::iptos(boost::get<0>(activeHosts_[0])).c_str(), textColor ), boost::bind(&SafeFreeSurface, _1) ) ;   
-				//applySurface( start_off_x + (x * PICTURE_OFFSET_X) + active->w, start_off_y + (y * PICTURE_OFFSET_Y), message, screen );
-				//// Wypisz MAC
-				//message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font.get(), utils::macToS(boost::get<1>(activeHosts_[0])).c_str(), textColor ), boost::bind(&SafeFreeSurface, _1) ) ;   
-				//applySurface( start_off_x + (x * PICTURE_OFFSET_X) + active->w , start_off_y + 12 + (y * PICTURE_OFFSET_Y), message, screen );
 			}
 			i++;
 		}
