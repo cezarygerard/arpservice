@@ -337,4 +337,17 @@ bool lessMAC::operator()(const MacAdress& m1, const MacAdress& m2)const
 		}
 		return net_addr;
 	}
+
+	int checkIP(std::string ip)
+	{
+		size_t found_pos = ip.find(".");
+		int count = 1;
+		// proste sprawdzenie adresu
+		while (found_pos != -1) {
+			found_pos = ip.find(".", found_pos + 1);
+			count++;
+		}
+		return count;
+	}
+
 }

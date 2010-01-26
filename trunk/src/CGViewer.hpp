@@ -42,8 +42,8 @@ public:
 	//Metoda uruchamia watek odbierania pakietow
 	void startCGViewer();
 	void stopCGViewer();
-	void switchView(const bool local_view = true);
-	void refreshCGViewerActiveHosts(std::map<utils::MacAdress,ActiveHost, utils::lessMAC>& m, bool local = true);
+	void switchView(const int local_view = utils::LOCAL);
+	void refreshCGViewerActiveHosts(std::map<utils::MacAdress,ActiveHost, utils::lessMAC>& m, int view = utils::LOCAL);
 	
 
 private:
@@ -63,8 +63,9 @@ private:
 
 	hostsVector activeHosts_;
 	hostsVector externalHosts_;
+	hostsVector selectedHosts_;
 
-	bool localView_;
+	int localView_;
 	///do synchronizacji - zeby na raz kilku nie czytalo/zapisywali
 	boost::shared_mutex mutex_;
 

@@ -33,6 +33,8 @@ using namespace std;
 
 namespace utils
 {
+	enum { LOCAL = 0, EXTERNAL = 1, SELECTED = 2 };
+
 	///rozmiar pakietu ARP request
 	const int ARP_REQ_SIZE = 60; //bytes
 	static int ARP_SEND_PERIOD = 15; //seconds
@@ -132,6 +134,7 @@ namespace utils
 	///zwraca czas lokalny, format format "YYYY-MM-DD-HH-MM-SS"
 	string getTime();
 
+	int checkIP(std::string ip);
 	//	bool operator<(const MacAdress& mac1, const MacAdress& mac2 );
 
 }
