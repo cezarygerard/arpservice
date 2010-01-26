@@ -223,10 +223,10 @@ void CConnectionMgr::sendInfo(TCPsocket csd_)
 		ActiveHost * ah = &(it->second);
 		{
 			try{
-			boost::archive::xml_oarchive oa(oss);
-			oa<< BOOST_SERIALIZATION_NVP(ah);
-			//boost::archive::text_oarchive oa(oss);
-			//oa<< (*ah);
+		//	boost::archive::xml_oarchive oa(oss);
+		//	oa<< BOOST_SERIALIZATION_NVP(ah);
+			boost::archive::text_oarchive oa(oss);
+			oa<< (ah);
 			
 			}
 			catch(std::exception e)
@@ -288,19 +288,19 @@ HostsMapPtr CConnectionMgr::receiveInfo(TCPsocket csd_)
 						{
 							try
 							{
-							boost::archive::xml_iarchive ia(iss);
-							ia >> BOOST_SERIALIZATION_NVP(ah) ;
+							//boost::archive::xml_iarchive ia(iss);
+							//ia >> BOOST_SERIALIZATION_NVP(ah) ;
 
-						//	boost::archive::text_iarchive ia(iss);
-						//	ia >> (ah) ;
+							boost::archive::text_iarchive ia(iss);
+							ia >> (ah) ;
 							}
 							
 							catch (boost::archive::archive_exception e)
 							{
-								//cout<<"CConnectionMgr::receiveInfo nie udalo sie odebrac informacji o hoscie "<<e.code<<endl;
+								cout<<"CConnectionMgr::receiveInfo nie udalo sie odebrac informacji o hoscie "<<e.code<<endl;
 							}
 							
-							//cout<<"CConnectionMgr::receiveInfo "<<utils::iptos(ah->ip)<<endl;
+							cout<<"CConnectionMgr::receiveInfo "<<utils::iptos(ah->ip)<<endl;
 							if(ah->start[1] != '0')
 							{
 								hostsMap->insert(pair<utils::MacAdress,ActiveHost>(ah->mac,*ah) );
