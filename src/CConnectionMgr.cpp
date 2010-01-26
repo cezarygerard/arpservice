@@ -301,7 +301,7 @@ HostsMapPtr CConnectionMgr::receiveInfo(TCPsocket csd_)
 							}
 							
 							cout<<"CConnectionMgr::receiveInfo "<<utils::iptos(ah->ip)<<endl;
-							if(ah->start[1] != '0')
+							if(ah->start[0] != '0')
 							{
 								hostsMap->insert(pair<utils::MacAdress,ActiveHost>(ah->mac,*ah) );
 						
