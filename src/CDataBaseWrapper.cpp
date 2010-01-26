@@ -181,9 +181,9 @@ void CDataBaseWrapper::saveHostToDB(ActiveHost& host)
 	sqlite3_prepare_v2(database,query.str().c_str(),-1,&statement, NULL);
 	int result = sqlite3_step(statement);
 	if(result == SQLITE_DONE)
-		cout<<"CDataBaseWrapper::saveHostToDB udalo sie"<<endl;
+		//cout<<"CDataBaseWrapper::saveHostToDB udalo sie"<<endl;
 	else	
-		cout<<"CDataBaseWrapper::saveHostToDB fail"<<result<<endl;
+		//cout<<"CDataBaseWrapper::saveHostToDB fail"<<result<<endl;
 
 	sqlite3_finalize(statement);
 }
