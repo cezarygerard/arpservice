@@ -71,17 +71,34 @@ void CMainLoop::enterMainLoop()
 			string alt;
 			data >> alt;
 			///wyswietlenie sieci z klientow
-			if(alt == "external" || alt == "ex")
+			if(alt == "external" || alt == "ex" || alt == "e")
+			{
 				CGViewer::getInstance()->switchView(utils::EXTERNAL);
+				CGViewer::getInstance()->startCGViewer();
+				cout << "Wyswietlanie monitora sieci pobranych od klientow" << endl;
+			}
 			///wyswietlenie sieci lokalnej
 			else if(alt == "local" || alt == "lo")
-				CGViewer::getInstance()->switchView(utils::LOCAL);
+			{
+				CGViewer::getInstance()->switchView(utils::LOCAL);	
+				CGViewer::getInstance()->startCGViewer();
+				cout << "Wyswietlanie monitora sieci lokalnej" << endl;
+			}
 			///wyswietlenie sieci archiwalnej
 			else if(alt == "archival" || alt == "ar")
+			{
 				CGViewer::getInstance()->switchView(utils::SELECTED);
-
-			CGViewer::getInstance()->startCGViewer();
-			cout << "Wyswietlanie monitora sieci" << endl;
+				CGViewer::getInstance()->startCGViewer();
+				cout << "Wyswietlanie monitora sieci archiwalnej" << endl;
+			}
+			else if(alt == "")
+			{
+				CGViewer::getInstance()->startCGViewer();
+				cout << "Wyswietlanie monitora sieci" << endl;
+			}	
+			else
+			
+			cout << "Bledny parametr wyswietlania" << endl;
 		
 		}
 		/// ladowanie z SQL
@@ -102,14 +119,23 @@ void CMainLoop::enterMainLoop()
 				string mac;
 				data >> mac;
 
-				if(mac.length() == 12)
+				string start;
+				data >> start;
+				cout <<start;
+				string stop;
+				data >> stop;
+				cout << stop;
+
+				if(mac.length() == 12 && start.length() == 0 && stop.length() == 0)
 					CDataBaseWrapper::getInstance()->showHostHistory(mac);
+				else if(start.length() != 0 && stop.length() == 0)
+					CDataBaseWrapper::getInstance()->showHostHistory(mac, start);
+				else if(stop.length() != 0)
+					CDataBaseWrapper::getInstance()->showHostHistory(mac, start, stop);
 				else
 				{
-					cerr << "Podano mac adres o nieprawidlowej budowie\nprzyklad:\nnload host 000AE63EFDE1" << endl;
+					cerr << "Podano nieprawidlowy ogranicznik czasowy\nprzyklad:\nnload host 000AE63EFDE1 01-25-2010 01-27-2010" << endl;
 				}
-
-			
 			}
 			///zaladowanie archiwalnej sieci lokalnej
 			else if(alt == "net" || alt == "network")
@@ -223,6 +249,7 @@ void CMainLoop::endMainLoop()
 {
 	serviceThread_.join();
 
+	CGViewer::getInstance()->stopCGViewer();
 	CDataBaseWrapper::destroyInstance();
 	CNetworkAdapter::destroyInstance();
 	CConnectionMgr::destroyInstance(); 
@@ -254,6 +281,9 @@ void CMainLoop::showHelp()
 	cout << "[pr cl], [print clients] aby wyswietlic liste klientow\n";
 	cout << endl;
 	cout << "[lo ho 'mac'], [load host 'mac'] w celu zaladowania historii hosta o danym MAC\n";
+	cout << "[lo ho 'mac' 'start'], [load host 'mac' 'start'] w celu zaladowania historii hosta o danym MAC od zadanej daty 'start' mm-dd-rrr\n";
+	cout << "[lo ho 'mac' 'start' 'stop'], [load host 'mac' 'start' 'stop'] w celu zaladowania historii hosta o danym MAC w zadanych ramach 'start' 'stop' mm-dd-rrr\n";
+	cout << endl;
 	cout << "[lo net 'netaddr'], [load network 'netaddr'] w celu zaladowania stanu danej sieci z bazy\n";
 	cout << "[pr net], [print netaddr] aby wyswietlic adresy sieci do ktorych naleza hosty z bazy\n";
 	

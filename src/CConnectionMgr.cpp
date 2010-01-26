@@ -100,7 +100,8 @@ void CConnectionMgr::connections(int port)
 				for_each(ipSet_.begin(), ipSet_.end(), boost::bind(&CConnectionMgr::connect, this, _1, port));
 			}
 			CDataBaseWrapper::getInstance()->handleReceivedExternal();
-			boost::this_thread::sleep(boost::posix_time::seconds(CONNECTION_PERIOD));
+			if(!stopConnecting_)
+				boost::this_thread::sleep(boost::posix_time::seconds(CONNECTION_PERIOD));
 		}
 	}
 	else
@@ -114,32 +115,36 @@ void CConnectionMgr::connections(int port)
 
 void CConnectionMgr::connect(std::string ip, int port)
 {
-
-
-	boost::recursive_mutex::scoped_lock recursive_lock(recursive_mutex);
-	IPaddress ip_;
-	TCPsocket csd_ ;
-//	SDLNet_SocketSet sockSet_;
-	if (SDLNet_ResolveHost(&ip_, ip.c_str(), port) < 0)
+		TCPsocket csd_ ;
 	{
-		fprintf(stderr, "SDLNet_ResolveHost: %s\n", SDLNet_GetError());
-		//exit(EXIT_FAILURE);
+		boost::recursive_mutex::scoped_lock recursive_lock(recursive_mutex);
+	
+		IPaddress ip_;
+	//	SDLNet_SocketSet sockSet_;
+		if (SDLNet_ResolveHost(&ip_, ip.c_str(), port) < 0)
+		{
+			fprintf(stderr, "SDLNet_ResolveHost: %s\n", SDLNet_GetError());
+			//exit(EXIT_FAILURE);
+		}
+	  	
+		 /* Open a connection with the IP provided (listen on the host's port) */
+		if ((csd_ = SDLNet_TCP_Open(&ip_)))
+		{
+			//jezeli udalo sie otworzyc polaczenie
+	//		printf("initNetwork() %d   %d", ip_.host, ip_.port);
+	//		isClient_ = true;
+			sockSet_= SDLNet_AllocSocketSet(1);
+			SDLNet_TCP_AddSocket(sockSet_, csd_);
+		}
+		else
+		{
+			fprintf(stderr, "SDLNet_TCP_Open: %s\n", SDLNet_GetError());
+			cerr << "Polaczenia nieustanowiono" << endl;
+			stopConnecting_ = true;
+		}
 	}
-  	
-	 /* Open a connection with the IP provided (listen on the host's port) */
-	if ((csd_ = SDLNet_TCP_Open(&ip_)))
-	{
-		//jezeli udalo sie otworzyc polaczenie
-//		printf("initNetwork() %d   %d", ip_.host, ip_.port);
-//		isClient_ = true;
-		sockSet_= SDLNet_AllocSocketSet(1);
-		SDLNet_TCP_AddSocket(sockSet_, csd_);
-		CDataBaseWrapper::getInstance()->enqueReceivedExternal(receiveInfo(csd_));
-	}
-	else
-	{
-		fprintf(stderr, "SDLNet_TCP_Open: %s\n", SDLNet_GetError());
-	}
+	
+	CDataBaseWrapper::getInstance()->enqueReceivedExternal(receiveInfo(csd_));
 
 }
 
@@ -261,6 +266,7 @@ HostsMapPtr CConnectionMgr::receiveInfo(TCPsocket csd_)
 			if (numready == -1) 
 			{
 				printf("SDLNet_CheckSockets: %s  numready: %d\n", SDLNet_GetError(),numready );
+				quit = true;
 			}
 			else if (numready) 
 			{
@@ -291,11 +297,11 @@ HostsMapPtr CConnectionMgr::receiveInfo(TCPsocket csd_)
 							
 							catch (boost::archive::archive_exception e)
 							{
-							//	cout<<"CConnectionMgr::receiveInfo nie udalo sie odebrac informacji o hoscie "<<e.code<<endl;
+								//cout<<"CConnectionMgr::receiveInfo nie udalo sie odebrac informacji o hoscie "<<e.code<<endl;
 							}
 							
 							//cout<<"CConnectionMgr::receiveInfo "<<utils::iptos(ah->ip)<<endl;
-							if(ah->start[0] != '0')
+							if(ah->start[1] != '0')
 							{
 								hostsMap->insert(pair<utils::MacAdress,ActiveHost>(ah->mac,*ah) );
 						
