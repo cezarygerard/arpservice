@@ -14,18 +14,6 @@ using namespace std;
 
 namespace utils
 {
-/*
-	struct IPAddress
-	{
-		unsigned char ip[4];
-	};
-
-	struct MacAdress
-	{
-		unsigned char m[6];
-	};
-*/
-
 	
 bool lessMAC::operator()(const MacAdress& m1, const MacAdress& m2)const
 {

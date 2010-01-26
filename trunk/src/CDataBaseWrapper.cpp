@@ -115,10 +115,62 @@ void CDataBaseWrapper::enqueReceivedExternal(ExternalHostsMapPtr externalHosts)
 	sh_iterator end = sh_iterator(externalHosts->end(),externalHosts);
 	for(it; it != end; ++it )
 	{
-		saveHostToDB((*it).second);
+		receivedExternal_.push((*it).second);
+		////
 		cout << utils::iptos((*it).second.ip) << endl;
 	}
 	
+}
+
+
+void CDataBaseWrapper::handleReceivedExternal()
+{
+	
+	boost::mutex::scoped_lock scoped_lock(mutexExternal_);
+	string currentTime = utils::getTime();
+
+		map<utils::MacAdress,ActiveHost, utils::lessMAC>::iterator it;
+	for(it = externalHosts_.begin(); it != externalHosts_.end(); it++ )
+	{
+		if((*it).second.ttl>0)
+		{
+			(*it).second.ttl -=1;
+		}
+		if((*it).second.ttl==0)
+		{
+			(*it).second.ttl -=1;
+			//zapisz info do bazy//
+			(*it).second.stop = currentTime;
+			saveHostToDB((*it).second);
+			//activeHosts_.erase(it);
+		}
+	}
+
+	while (!receivedExternal_.empty())
+	{
+		ActiveHost eh = receivedExternal_.front();
+		map<utils::MacAdress,ActiveHost, utils::lessMAC>::iterator it;
+		it = externalHosts_.find(eh.mac);
+		
+		if(it == externalHosts_.end())
+		{//hosta nie ma na liscie 
+			externalHosts_.insert ( pair<utils::MacAdress,ActiveHost>(eh.mac,eh) );
+		}
+		else
+		{//host jest na liscie 
+			if((*it).second.ttl <= 0)
+			{
+				(*it).second.start = eh.start;
+			}
+			(*it).second.ttl = utils::MAX_TTL_EXTERNAL;
+			(*it).second.stop = currentTime;
+			(*it).second.ip = eh.ip;
+		}	
+		receivedExternal_.pop();
+	
+	}
+	//SOON
+	//CGViewer::getInstance()->refreshCGViewerActiveHosts(activeHosts_);
 }
 
 void CDataBaseWrapper::saveHostToDB(ActiveHost& host)
