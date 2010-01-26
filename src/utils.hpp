@@ -54,7 +54,7 @@ namespace utils
 	const int SCREEN_BPP = 32;
 
 	const int PICTURE_OFFSET_Y = 30; //px
-	const int PICTURE_OFFSET_X = 120; //px
+	const int PICTURE_OFFSET_X = 130; //px
 
 	const int X_LIMIT = 10; 
 	const int Y_LIMIT = 20;

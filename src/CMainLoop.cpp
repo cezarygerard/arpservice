@@ -2,6 +2,11 @@
 
 void CMainLoop::initMainLoop()
 {
+	//Inicjalizacja podsystemow
+    if( SDL_Init( 0 ) == -1 )
+    {
+       cout << "Inicjalizacja SDL nie powiodla sie" << endl;
+    }
 
 	CGViewer::getInstance();
 	CNetworkAdapter::getInstance();
@@ -24,7 +29,7 @@ void CMainLoop::enterMainLoop()
 	getline(cin, s);
 	s.clear();
 	cout << "*****\n*\n* Lan Monitor wita\n* Wprowadz komende po znaku zachety\n* Lista komend po wprowadzeniu ? lub help \n*\n*****" << endl;
-	boost::this_thread::sleep(boost::posix_time::millisec(100));
+	boost::this_thread::sleep(boost::posix_time::millisec(200));
 	while(!quit_)	
 	{	
 		cout << "lanmonitor $ ";
@@ -116,7 +121,6 @@ void CMainLoop::enterMainLoop()
 				{
 					cout << "Pobieranie historii..." << endl;
 					CDataBaseWrapper::getInstance()->loadSpecificHosts(netaddr);
-					cout << "Siec zaladowana do podgladu" << endl;
 				}
 				else
 				{
