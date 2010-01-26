@@ -24,6 +24,7 @@ void CMainLoop::enterMainLoop()
 	getline(cin, s);
 	s.clear();
 	cout << "*****\n*\n* Lan Monitor wita\n* Wprowadz komende po znaku zachety\n* Lista komend po wprowadzeniu ? lub help \n*\n*****" << endl;
+	boost::this_thread::sleep(boost::posix_time::millisec(100));
 	while(!quit_)	
 	{	
 		cout << "lanmonitor $ ";
@@ -43,8 +44,18 @@ void CMainLoop::enterMainLoop()
 			data >> alt;
 			if(alt == "clients" || alt == "cl")
 				CConnectionMgr::getInstance()->showConnections();
+			else if(alt == "ttl"){
+				cout << "Okres rozsylania ARP SEND_PERIOD : " << utils::ARP_SEND_PERIOD << endl;
+				cout << "Okres zycia hosta TTL : " << utils::TTL << endl;
+			}
 			else
 			{
+				if(alt == "external" || alt == "ex")
+				CGViewer::getInstance()->switchView(false);
+				
+				if(alt == "local" || alt == "lo")
+				CGViewer::getInstance()->switchView(true);
+
 				CGViewer::getInstance()->startCGViewer();
 				cout << "Wyswietlanie monitora sieci" << endl;
 			}
@@ -112,6 +123,29 @@ void CMainLoop::enterMainLoop()
 			serviceThread_ = boost::thread(boost::bind(&CMainLoop::stopCConnections, this));
 			cout << "Oczekiwanie na zakonczenie polaczenia..." << endl;
 		}
+		else if( token == "set") {
+			string alt;
+			data >> alt;
+			if(alt == "SEND_PERIOD")
+			{
+				data >> utils::ARP_SEND_PERIOD;
+				utils::MAX_TTL = utils::TTL * utils::ARP_SEND_PERIOD;
+				cout << "Okres rozsylania ARP zmieniono na wartosc " << utils::ARP_SEND_PERIOD << endl;
+			}
+			else if( alt == "TTL" ) 
+			{
+				data >> utils::TTL;
+				utils::MAX_TTL = utils::TTL * utils::ARP_SEND_PERIOD;
+				cout << "Czas zycia host'a zmieniono na wartosc " << utils::TTL << endl;
+			}
+			else if( alt == "?" )
+			{
+				cout << "[set TTL 'ttl'] aby ustawic TTL\n";
+				cout << "[set SEND_PERIOD 'send_period'] aby ustawic okres rozsylania ARP\n";
+			}
+			else
+				cerr << "Wprowadzono bledna komende zmiany wartosci, wprowadz ? w celu otrzymania listy komend" << endl;
+		}
 		else if(token == "quit" || token == "q" || token == "exit")
 		{
 			quit_ = true;
@@ -148,17 +182,26 @@ void CMainLoop::quitNow()
 void CMainLoop::showHelp()
 {
 	cout << "Lista komend\n";
+	cout << endl;
 	cout << "[?], [help] aby wyswietlic ten ekran\n";
-
-	cout << "[at IP], [attach IP] w celu dodania host'a do grupy klientow\n";
-	cout << "[dt IP], [detach IP] w celu usuniecia host'a z grupy klientow\n";
+	cout << "[q], [quit] aby wyjsc\n";
+	cout << endl;
+	cout << "[at 'IP'], [attach 'IP'] w celu dodania host'a do grupy klientow\n";
+	cout << "[dt 'IP'], [detach 'IP'] w celu usuniecia host'a z grupy klientow\n";
 	cout << "[co], [connect] w celu otwarcia polaczen z grupa klientow\n";
 	cout << "[di], [disconnect] w celu zamkniecia polaczen z grupa klientow\n";
+	cout << endl;
 	cout << "[sh cl], [show clients] aby wyswietlic liste klientow\n";
-	cout << "[sh], [show] aby wyswietlic graficzny monitor sieci\n";
+	cout << "[sh], [show] aby wyswietlic graficzny monitor sieci w obecnym trybie\n";
+	cout << "[sh ttl], [show ttl] aby wyswietlic wartosci parametrow TTL i SEND_PERIOD\n";
+	cout << "[sh lc], [show local] aby wyswietlic stan sieci w ktorej pracuje aplikacja\n";
+	cout << "[sh ex], [show external] aby wyswietlic stan sieci dolaczonych klientow\n";
+	cout << endl;
+	cout << "[set TTL 'ttl'] aby ustawic TTL\n";
+	cout << "[set SEND_PERIOD 'send_period'] aby ustawic okres rozsylania ARP\n";
 	cout << "[hi], [hide] aby ukryc graficzny monitor sieci\n";
 
-	cout << "[q], [quit] aby wyjsc\n";
+	
 }
 bool CMainLoop::loadParams() 
 {
@@ -187,6 +230,13 @@ bool CMainLoop::loadParams()
 				//pobierz czas w odstepie ktorego wysylane maja byc pakiety
 				data >> utils::ARP_SEND_PERIOD;
 			//	cout << utils::ARP_SEND_PERIOD << endl;
+			}
+			else if( token == "MAX_TTL_EXTERNAL") {
+				//przytnij
+				data.ignore(20, '=');
+				//pobierz czas zycia hosta
+				data >> utils::MAX_TTL_EXTERNAL;
+			//	cout << utils::TTL << endl;
 			}
 			else if( token == "TTL") {
 				//przytnij

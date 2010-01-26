@@ -28,6 +28,7 @@ SDL_Color textColorRed = { 255, 0, 0 };
 
 
 CGViewer::CGViewer() {
+	localView_ = true;
 	utils::fout<<"CGViewer::CGViewer() tworzenie"<< std::endl;
 };
 CGViewer::~CGViewer() {
@@ -214,8 +215,15 @@ void CGViewer::createTable()
 {
 	boost::shared_lock<boost::shared_mutex> lock(mutex_);
 
+	hostsVector v;
+
+	if(localView_)
+		v = activeHosts_;
+	else
+		v = externalHosts_;
+
 	int i = 0;
-	int num_of_hosts = activeHosts_.size();
+	int num_of_hosts = v.size();
 
 	ostringstream ss;
 	ss << num_of_hosts;
@@ -240,9 +248,19 @@ void CGViewer::createTable()
 
 	applySurface( 0, 0, background, screen );
 	
+	// naglowek okna
+	if(localView_)
+		message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font_large.get(), "Lokalne", textColor ), boost::bind(&SafeFreeSurface, _1) ) ;   
+	else
+		message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font_large.get(), "Zdalne", textColor ), boost::bind(&SafeFreeSurface, _1) ) ;   
+
+	applySurface( SCREEN_WIDTH - 100, 20, message, screen );	
+	
+	// naglowek okna cz2
 	message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font_large.get(), "Monitor sieci LAN", textColor ), boost::bind(&SafeFreeSurface, _1) ) ;   
 	applySurface( SCREEN_WIDTH/2-100, 60, message, screen );
 
+	//liczba hostow
 	message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font.get(), str_num_of_hosts.c_str(), textColor ), boost::bind(&SafeFreeSurface, _1) ) ;   
 	applySurface( SCREEN_WIDTH/2-50, 15, message, screen );
 
@@ -265,11 +283,11 @@ void CGViewer::createTable()
 			if(i < num_of_hosts)
 			{
 				//Zaleznie od TTL pokaz odpowiednia ikone
-				if(boost::get<2>(activeHosts_[i]) > 0)
+				if(boost::get<2>(v[i]) > 0)
 				{
 					applySurface( start_off_x + (x * PICTURE_OFFSET), start_off_y + (y * PICTURE_OFFSET), active, screen );
 				}
-				else if(boost::get<2>(activeHosts_[i]) <= 0)
+				else if(boost::get<2>(v[i]) <= 0)
 				{
 					applySurface( start_off_x + (x * PICTURE_OFFSET), start_off_y + (y * PICTURE_OFFSET), inactive, screen );
 				}
@@ -299,16 +317,25 @@ void CGViewer::stopCGViewer()
 	threadCGViewer_.join();
 }
 
+void CGViewer::switchView(const bool local_view)
+{
+	localView_ = local_view;
+}
 
-void CGViewer::refreshCGViewerActiveHosts(std::map<utils::MacAdress,ActiveHost, utils::lessMAC>& m)
+void CGViewer::refreshCGViewerActiveHosts(std::map<utils::MacAdress,ActiveHost, utils::lessMAC>& m, bool local)
 {
 	boost::unique_lock<boost::shared_mutex> write_lock(mutex_);
 
-		std::vector<boost::tuple<IPAddress, MacAdress, int> > v;
+		hostsVector v;
 
 	for(std::map<utils::MacAdress,ActiveHost, utils::lessMAC>::iterator it = m.begin(); it != m.end(); ++it)
 	{
 		v.push_back(boost::make_tuple(it->second.ip, it->second.mac, it->second.ttl));
 	}
-	activeHosts_ = v;
+	if(local)
+		activeHosts_ = v;
+	else
+		externalHosts_ = v;
 }
+
+
