@@ -101,7 +101,7 @@ void CConnectionMgr::connections(int port)
 				for_each(ipSet_.begin(), ipSet_.end(), boost::bind(&CConnectionMgr::connect, this, _1, port));
 			}
 			CDataBaseWrapper::getInstance()->handleReceivedExternal();
-			boost::this_thread::sleep(boost::posix_time::seconds(60));
+			boost::this_thread::sleep(boost::posix_time::seconds(CONNECTION_PERIOD));
 		}
 	}
 	else
@@ -173,7 +173,7 @@ void CConnectionMgr::listen(int port)
 
 	int quit = 0;
 	int t = 0;
-	utils::fout<<"Nasluchiwanie polaczen przychodzacych na porcie: "<<port<<endl;
+	cout<<"Nasluchiwanie polaczen przychodzacych na porcie: "<<port<<endl;
 
 	while (!stopListening_)
 	{
@@ -194,7 +194,7 @@ void CConnectionMgr::listen(int port)
 				fprintf(stderr, "SDLNet_TCP_GetPeerAddress: %s\n", SDLNet_GetError());
 		}	
 
-		boost::this_thread::sleep(boost::posix_time::millisec(10));
+		boost::this_thread::sleep(boost::posix_time::millisec(utils::LISTENING_PERIOD));
 	}
 
 	SDLNet_TCP_Close(sd_);
@@ -246,6 +246,7 @@ void CConnectionMgr::sendInfo(TCPsocket csd_)
 		fprintf(stderr, "SDLNet_TCP_Send: %s\n", SDLNet_GetError());
 	}
 	SDLNet_TCP_Close(csd_);
+	startListening();
 }
 
 HostsMapPtr CConnectionMgr::receiveInfo(TCPsocket csd_)
