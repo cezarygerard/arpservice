@@ -43,7 +43,7 @@ public:
 	//Metoda uruchamia watek odbierania pakietow
 	void startCapturingARPs();
 
-	boost::tuple<utils::IPAddress, utils::MacAdress, utils::IPAddress> getIPMacandNetMask() const;
+	boost::tuple<utils::IPAddress, utils::MacAdress, utils::IPAddress> getIPMacandNetAddr() const;
 
 	void startSendingARPs();
 

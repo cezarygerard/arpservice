@@ -34,8 +34,8 @@ CDataBaseWrapper::~CDataBaseWrapper()
 
 void CDataBaseWrapper::handleReceived()
 {
-	
 	boost::mutex::scoped_lock scoped_lock(mutex_);
+
 	string currentTime = utils::getTime();
 	map<utils::MacAdress,ActiveHost, utils::lessMAC>::iterator it;
 	for(it = activeHosts_.begin(); it != activeHosts_.end(); it++ )
@@ -56,9 +56,9 @@ void CDataBaseWrapper::handleReceived()
 	
 	
 	ActiveHost ah;
-	ah.ip = boost::get<0>(CNetworkAdapter::getInstance()->getIPMacandNetMask());
-	ah.mac = boost::get<1>(CNetworkAdapter::getInstance()->getIPMacandNetMask());
-	ah.netmask = boost::get<2>(CNetworkAdapter::getInstance()->getIPMacandNetMask());
+	ah.ip = boost::get<0>(CNetworkAdapter::getInstance()->getIPMacandNetAddr());
+	ah.mac = boost::get<1>(CNetworkAdapter::getInstance()->getIPMacandNetAddr());
+	ah.netaddr = boost::get<2>(CNetworkAdapter::getInstance()->getIPMacandNetAddr());
 	received_.push(ah);
 
 	while (!received_.empty())
@@ -110,7 +110,7 @@ void CDataBaseWrapper::enqueReceived(ActiveHost& host)
 
 void CDataBaseWrapper::enqueReceivedExternal(ExternalHostsMapPtr externalHosts)
 {
-	boost::mutex::scoped_lock scoped_lock(mutexExternal_);
+	boost::mutex::scoped_lock scoped_lock3(mutexExternal_);
 	sh_iterator it = sh_iterator(externalHosts->begin(),externalHosts);
 	sh_iterator end = sh_iterator(externalHosts->end(),externalHosts);
 	for(it; it != end; ++it )
@@ -124,7 +124,7 @@ void CDataBaseWrapper::enqueReceivedExternal(ExternalHostsMapPtr externalHosts)
 void CDataBaseWrapper::handleReceivedExternal()
 {
 	
-	boost::mutex::scoped_lock scoped_lock(mutexExternal_);
+	boost::mutex::scoped_lock scoped_lock3(mutexExternal_);
 	string currentTime = utils::getTime();
 
 		map<utils::MacAdress,ActiveHost, utils::lessMAC>::iterator it;
@@ -172,11 +172,11 @@ void CDataBaseWrapper::handleReceivedExternal()
 
 void CDataBaseWrapper::saveHostToDB(ActiveHost& host)
 {
-	boost::mutex::scoped_lock scoped_lock(mutexDatabase_);
+	boost::mutex::scoped_lock scoped_lock2(mutexDatabase_);
 	stringstream query;
 	sqlite3_stmt *statement;
-	query<<"insert into arprecord (mac,ip,start,stop,netmask) values ('"<< utils::macToS(host.mac)<<"','"
-			<<utils::iptos(host.ip)<<"','"<<host.start<<"','"<<host.stop<<"','"<<utils::iptos(host.netmask)<<"');";
+	query<<"insert into arprecord (mac,ip,start,stop,netaddr) values ('"<< utils::macToS(host.mac)<<"','"
+			<<utils::iptos(host.ip)<<"','"<<host.start<<"','"<<host.stop<<"','"<<utils::iptos(host.netaddr)<<"');";
 //	utils::fout<<"CDataBaseWrapper::saveHostToDB:"<<query.str()<<endl;
 	sqlite3_prepare_v2(database,query.str().c_str(),-1,&statement, NULL);
 	int result = sqlite3_step(statement);
@@ -213,7 +213,7 @@ void CDataBaseWrapper::loadAllHosts()
 			ah.stop = string (str);
 			
 			str = (char *)sqlite3_column_text(statement, 5);
-			ah.netmask = utils::sToIp(string(str));
+			ah.netaddr = utils::sToIp(string(str));
 			
 			ah.ttl = -1;
 			activeHosts_.insert( pair<utils::MacAdress,ActiveHost>(ah.mac,ah) );
@@ -221,10 +221,60 @@ void CDataBaseWrapper::loadAllHosts()
 	}
 }
 
+void CDataBaseWrapper::showNetAddresses()
+{
+	boost::mutex::scoped_lock scoped_lock2(mutexDatabase_);
+
+	cout << "\n****\n* Wykaz adresow sieci z bazy archiwalnych hostow:\n*";
+
+	string selectSql = "select netaddr from arprecord group by netaddr;";
+	sqlite3_stmt *statement;
+	if (sqlite3_prepare_v2(database, selectSql.c_str(), -1, &statement, NULL) == SQLITE_OK) {
+		while (sqlite3_step(statement) == SQLITE_ROW) {
+			char *str = (char *)sqlite3_column_text(statement, 0);
+			cout << "\n* " << str;
+		}
+	}
+	cout << "\n****" << endl;
+}
+
+void CDataBaseWrapper::loadSpecificHosts(std::string net_addr)
+{
+	boost::mutex::scoped_lock scoped_lock2(mutexDatabase_);
+
+	stringstream selectSql;
+
+	selectSql<<"select * from arprecord where netaddr ='"<<net_addr<<"' group by mac;";
+	sqlite3_stmt *statement;
+	if (sqlite3_prepare_v2(database, selectSql.str().c_str(), -1, &statement, NULL) == SQLITE_OK) {
+		while (sqlite3_step(statement) == SQLITE_ROW) {
+			ActiveHost ah;
+			int id = sqlite3_column_int(statement, 0);
+			
+			char *str = (char *)sqlite3_column_text(statement, 1);
+			ah.mac = utils::sToMac(string(str));
+
+			str = (char *)sqlite3_column_text(statement, 2);
+			ah.ip = utils::sToIp(string(str));
+			
+			str = (char *)sqlite3_column_text(statement, 3);
+			ah.start = string (str);
+			
+			str = (char *)sqlite3_column_text(statement, 4);
+			ah.stop = string (str);
+			
+			str = (char *)sqlite3_column_text(statement, 5);
+			ah.netaddr = utils::sToIp(string(str));
+			
+			ah.ttl = -1;
+			selectedHosts_.insert( pair<utils::MacAdress,ActiveHost>(ah.mac,ah) );
+		}	
+	}
+}
+
 void CDataBaseWrapper::saveAllHosts()
 {
 	boost::mutex::scoped_lock scoped_lock(mutex_);
-	boost::mutex::scoped_lock scoped_lock2(mutexDatabase_);
 	boost::mutex::scoped_lock scoped_lock3(mutexExternal_);
 
 	map<utils::MacAdress,ActiveHost, utils::lessMAC>::iterator it;

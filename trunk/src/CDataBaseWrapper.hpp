@@ -61,6 +61,10 @@ public:
 	//Laduje wszystkie histroryczne hosty
 	void loadAllHosts();
 
+	void showNetAddresses();
+
+	void loadSpecificHosts(std::string net_addr);
+
 	void startHandlingReceived();
 
 private:
@@ -81,10 +85,12 @@ private:
 	///kolejka FIFO hostow pobranych od klientów, ale jeszcze nie przetworzonych (TTL, baza itp)
 	queue <ActiveHost> receivedExternal_;
 
-	///kolejka aktywnych hostow
+	///mapa aktywnych hostow
 	std::map<utils::MacAdress,ActiveHost, utils::lessMAC> activeHosts_;
-	///kolejka hostow zewnetrznych
+	///mapa hostow zewnetrznych
 	std::map<utils::MacAdress,ActiveHost, utils::lessMAC> externalHosts_;
+	///mapa hostow archiwalnych 
+	std::map<utils::MacAdress,ActiveHost, utils::lessMAC> selectedHosts_;
 
 	///do synchronizacji - zeby na raz kilku nie czytalo/zapisywali
 	boost::mutex mutex_;

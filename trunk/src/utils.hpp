@@ -47,14 +47,15 @@ namespace utils
 	const int HANDLE_SLEEP_PERIOD = 1; //seconds
 	const int ETH_HEADER_OFFSET = 14; //bytes
 
-	const int SCREEN_WIDTH = 1000; //px
+	const int SCREEN_WIDTH = 1320; //px
 	const int SCREEN_HEIGHT = 700; //px
 	const int SCREEN_BPP = 32;
 
-	const int PICTURE_OFFSET = 76; //px
+	const int PICTURE_OFFSET_Y = 30; //px
+	const int PICTURE_OFFSET_X = 120; //px
 
-	const int X_LIMIT = 14; 
-	const int Y_LIMIT = 7;
+	const int X_LIMIT = 10; 
+	const int Y_LIMIT = 20;
 
 	const int FRAMES_PER_SECOND = 20; // dzielnik
 
@@ -114,6 +115,8 @@ namespace utils
 	
 	///zmiania IP z long int na utils::IPAddress 
 	IPAddress iptoIP(u_long in);
+
+	IPAddress iptoNetAddr(IPAddress ip, IPAddress mask);
 
 	///inicjalizacja programu - wypisanie listy interfejsow, zaczytanie ktory interfejs ma byc uzyty
 	pcap_if_t * init();
