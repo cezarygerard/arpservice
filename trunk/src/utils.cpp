@@ -217,7 +217,28 @@ bool lessMAC::operator()(const MacAdress& m1, const MacAdress& m2)const
 		SYSTEMTIME lpSystemTime = SYSTEMTIME();// = NULL;
 		GetLocalTime(&lpSystemTime);
 		
+		stringstream out;
+		if(lpSystemTime.wMonth<10)
+			out<<"0"; //mozna bylo uzyc setw(n)
+		out<<lpSystemTime.wMonth<<"-";
 
+		if(lpSystemTime.wDay<10)
+			out<<"0";
+		out<<lpSystemTime.wDay<<"-";
+
+		out<<lpSystemTime.wYear<<" ";
+
+		//if(lpSystemTime.wHour<10)
+		//	out<<"0";
+		out<<lpSystemTime.wHour<<":";
+		if(lpSystemTime.wMinute<10)
+			out<<"0";
+		out<<lpSystemTime.wMinute<<":";
+		if(lpSystemTime.wSecond<10)
+			out<<"0";
+		out<<lpSystemTime.wSecond;
+		
+		
 //		time_t timeInSeconds = time(NULL);
 //		tm* now = localtime( &timeInSeconds );//prawdopodobnie dla linucha lepsza jest localtime_s
 		/*	printf(
@@ -241,25 +262,6 @@ bool lessMAC::operator()(const MacAdress& m1, const MacAdress& m2)const
 		   now->tm_isdst
 */
 
-		stringstream out;
-		out<<lpSystemTime.wYear<<"-";
-		if(lpSystemTime.wMonth<10)
-			out<<"0"; //mozna bylo uzyc setw(n)
-		out<<lpSystemTime.wMonth<<"-";
-		if(lpSystemTime.wDay<10)
-			out<<"0";
-		out<<lpSystemTime.wDay<<"-";
-		if(lpSystemTime.wHour<10)
-			out<<"0";
-		out<<lpSystemTime.wHour<<"-";
-		if(lpSystemTime.wMinute<10)
-			out<<"0";
-		out<<lpSystemTime.wMinute<<"-";
-		if(lpSystemTime.wSecond<10)
-			out<<"0";
-		out<<lpSystemTime.wSecond;
-		
-		
 		//		out<<  now->tm_year<<"-"<<now->tm_mon<<"-"<< now->tm_mday<<"-"<< now->tm_hour<<"-"<< now->tm_min<<"-"<< now->tm_sec<<endl;
 	//	string s = out.str();
 		return out.str();

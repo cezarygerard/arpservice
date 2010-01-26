@@ -110,7 +110,7 @@ void CDataBaseWrapper::enqueReceived(ActiveHost& host)
 
 void CDataBaseWrapper::enqueReceivedExternal(ExternalHostsMapPtr externalHosts)
 {
-	boost::mutex::scoped_lock scoped_lock3(mutexExternal_);
+//	boost::mutex::scoped_lock scoped_lock3(mutexExternal_);
 	sh_iterator it = sh_iterator(externalHosts->begin(),externalHosts);
 	sh_iterator end = sh_iterator(externalHosts->end(),externalHosts);
 	for(it; it != end; ++it )
@@ -124,7 +124,7 @@ void CDataBaseWrapper::enqueReceivedExternal(ExternalHostsMapPtr externalHosts)
 void CDataBaseWrapper::handleReceivedExternal()
 {
 	
-	boost::mutex::scoped_lock scoped_lock3(mutexExternal_);
+//	boost::mutex::scoped_lock scoped_lock3(mutexExternal_);
 	string currentTime = utils::getTime();
 
 		map<utils::MacAdress,ActiveHost, utils::lessMAC>::iterator it;
@@ -181,9 +181,9 @@ void CDataBaseWrapper::saveHostToDB(ActiveHost& host)
 	sqlite3_prepare_v2(database,query.str().c_str(),-1,&statement, NULL);
 	int result = sqlite3_step(statement);
 	if(result == SQLITE_DONE)
-		//cout<<"CDataBaseWrapper::saveHostToDB udalo sie"<<endl;
+		;//cout<<"CDataBaseWrapper::saveHostToDB udalo sie"<<endl;
 	else	
-		//cout<<"CDataBaseWrapper::saveHostToDB fail"<<result<<endl;
+		;//cout<<"CDataBaseWrapper::saveHostToDB fail"<<result<<endl;
 
 	sqlite3_finalize(statement);
 }
@@ -239,15 +239,22 @@ void CDataBaseWrapper::showNetAddresses()
 }
 
 
-void CDataBaseWrapper::showHostHistory(std::string mac)
+
+
+
+
+
+void CDataBaseWrapper::showHostHistory(std::string mac, std::string start, std::string stop)
 {
 	boost::mutex::scoped_lock scoped_lock2(mutexDatabase_);
 
-	/// CZY IP?
-	cout << "\n****\n* Historia aktywnosci hosta o MAC: " << mac <<"\n*";
 	stringstream selectSql;
 
-	selectSql<<"select * from arprecord where mac ='"<<mac<<"' ORDER BY start ASC;";
+	selectSql<<"select * from arprecord where mac ='"<<mac<<"' AND start BETWEEN '"<<start<<"' AND '"<<stop<<"' ORDER BY start ASC;";
+	cout << selectSql.str();
+
+	/// CZY IP?
+	cout << "\n\n****\n* Historia aktywnosci hosta o MAC: " << mac <<"\n*";
 	sqlite3_stmt *statement;
 	if (sqlite3_prepare_v2(database, selectSql.str().c_str(), -1, &statement, NULL) == SQLITE_OK) {
 		while (sqlite3_step(statement) == SQLITE_ROW) {
@@ -308,7 +315,7 @@ void CDataBaseWrapper::loadSpecificHosts(std::string net_addr)
 			ah.ttl = -1;
 			selected_hosts.insert( pair<utils::MacAdress,ActiveHost>(ah.mac,ah) );
 		}	
-	cout << "Siec zaladowana do podgladu" << endl;
+	cout << "Zapytanie sql wykonane" << endl;
 	}
 	else
 	{

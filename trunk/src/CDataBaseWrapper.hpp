@@ -65,7 +65,7 @@ public:
 
 	void loadSpecificHosts(std::string net_addr);
 
-	void showHostHistory(std::string mac);
+	void showHostHistory(std::string mac, std::string start = "01-14-2009", std::string stop = "02-14-2100");
 
 	void startHandlingReceived();
 

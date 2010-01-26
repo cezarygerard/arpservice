@@ -86,6 +86,8 @@ private:
 	///obiekt mutex synchronizujacy watki z zagnie¿d¿eniem rekursywnym
 	boost::recursive_mutex recursive_mutex;
 
+	boost::shared_mutex shared_mutex;
+
 	std::vector<boost::shared_ptr<boost::thread> > sendingThreads_;
 
 	SDLNet_SocketSet sockSet_;
