@@ -89,7 +89,7 @@ void CDataBaseWrapper::handleReceived()
 		//	utils::MacAdress currentMac = received_.front().mac;
 	//	activeHosts_[currentMac].		
 	}
-	CGViewer::getInstance()->refreshCGViewerActiveHosts(activeHosts_);
+	CGViewer::getInstance()->refreshCGViewerActiveHosts(activeHosts_, utils::LOCAL);
 }
 
 void CDataBaseWrapper::handleReceivedInThread()
@@ -167,7 +167,7 @@ void CDataBaseWrapper::handleReceivedExternal()
 		receivedExternal_.pop();
 	
 	}
-	CGViewer::getInstance()->refreshCGViewerActiveHosts(externalHosts_, false);
+	CGViewer::getInstance()->refreshCGViewerActiveHosts(externalHosts_, utils::EXTERNAL);
 }
 
 void CDataBaseWrapper::saveHostToDB(ActiveHost& host)
@@ -238,9 +238,48 @@ void CDataBaseWrapper::showNetAddresses()
 	cout << "\n****" << endl;
 }
 
+
+void CDataBaseWrapper::showHostHistory(std::string mac)
+{
+	boost::mutex::scoped_lock scoped_lock2(mutexDatabase_);
+
+	/// CZY IP?
+	cout << "\n****\n* Historia aktywnosci hosta o MAC: " << mac <<"\n*";
+	stringstream selectSql;
+
+	selectSql<<"select * from arprecord where mac ='"<<mac<<"' ORDER BY by start ASC;";
+	sqlite3_stmt *statement;
+	if (sqlite3_prepare_v2(database, selectSql.str().c_str(), -1, &statement, NULL) == SQLITE_OK) {
+		while (sqlite3_step(statement) == SQLITE_ROW) {
+			//int id = sqlite3_column_int(statement, 0);
+			
+			//char *str = (char *)sqlite3_column_text(statement, 1);
+	
+			char *str = (char *)sqlite3_column_text(statement, 5);
+			cout << "\n* NetAddr: " << string(str);
+
+			str = (char *)sqlite3_column_text(statement, 2);
+			cout << "\n* IP: " <<string(str);
+			
+			str = (char *)sqlite3_column_text(statement, 3);
+			cout << "\n* start: " <<string (str);
+			
+			str = (char *)sqlite3_column_text(statement, 4);
+			cout << "\n* stop: " << string (str);			
+			
+			cout << endl;
+		}	
+	}
+	cout << "\n****" << endl;
+	
+}
+
+
 void CDataBaseWrapper::loadSpecificHosts(std::string net_addr)
 {
 	boost::mutex::scoped_lock scoped_lock2(mutexDatabase_);
+
+	std::map<utils::MacAdress,ActiveHost, utils::lessMAC> selected_hosts;
 
 	stringstream selectSql;
 
@@ -267,9 +306,10 @@ void CDataBaseWrapper::loadSpecificHosts(std::string net_addr)
 			ah.netaddr = utils::sToIp(string(str));
 			
 			ah.ttl = -1;
-			selectedHosts_.insert( pair<utils::MacAdress,ActiveHost>(ah.mac,ah) );
+			selected_hosts.insert( pair<utils::MacAdress,ActiveHost>(ah.mac,ah) );
 		}	
 	}
+	CGViewer::getInstance()->refreshCGViewerActiveHosts(selected_hosts, utils::SELECTED);
 }
 
 void CDataBaseWrapper::saveAllHosts()

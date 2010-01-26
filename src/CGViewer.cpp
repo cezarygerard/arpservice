@@ -16,6 +16,7 @@ SDL_Surface* screen;
 boost::shared_ptr<SDL_Surface> background;
 boost::shared_ptr<SDL_Surface> active;
 boost::shared_ptr<SDL_Surface> inactive;
+boost::shared_ptr<SDL_Surface> unknown;
 boost::shared_ptr<SDL_Surface> message; 
 
 //Fonty
@@ -29,7 +30,7 @@ SDL_Color textColorRed = { 255, 0, 0 };
 
 
 CGViewer::CGViewer() {
-	localView_ = true;
+	localView_ = utils::LOCAL;
 	utils::fout<<"CGViewer::CGViewer() tworzenie"<< std::endl;
 };
 CGViewer::~CGViewer() {
@@ -140,6 +141,12 @@ bool CGViewer::loadFiles()
         return false;
     }
 
+	unknown = loadImage( "../res/unknown_s.png" );
+    if( unknown.get() == NULL )
+    {
+        return false;
+    }
+
 	// ladowanie czcionek
 	font = openFont( "../res/verdana.ttf", 9 ); 
 
@@ -218,10 +225,12 @@ void CGViewer::createTable()
 
 	hostsVector v;
 
-	if(localView_)
+	if(localView_ == utils::LOCAL)
 		v = activeHosts_;
-	else
+	else if(localView_ == utils::EXTERNAL)
 		v = externalHosts_;
+	else
+		v = selectedHosts_;
 
 	int i = 0;
 	int num_of_hosts = v.size();
@@ -250,12 +259,14 @@ void CGViewer::createTable()
 	applySurface( 0, 0, background, screen );
 	
 	// naglowek okna
-	if(localView_)
+	if(localView_ == utils::LOCAL)
 		message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font_large.get(), "Lokalne", textColor ), boost::bind(&SafeFreeSurface, _1) ) ;   
-	else
+	else if(localView_ == utils::EXTERNAL)
 		message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font_large.get(), "Zdalne", textColor ), boost::bind(&SafeFreeSurface, _1) ) ;   
+	else
+		message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font_large.get(), "Archiwalne", textColor ), boost::bind(&SafeFreeSurface, _1) ) ;   
 
-	applySurface( SCREEN_WIDTH - 100, 20, message, screen );	
+	applySurface( SCREEN_WIDTH - 150, 20, message, screen );	
 	
 	// naglowek okna cz2
 	message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font_large.get(), "Monitor sieci LAN", textColor ), boost::bind(&SafeFreeSurface, _1) ) ;   
@@ -292,6 +303,8 @@ void CGViewer::createTable()
 				{
 					applySurface( start_off_x + (x * PICTURE_OFFSET_X), start_off_y + (y * PICTURE_OFFSET_Y), inactive, screen );
 				}
+				if(localView_ == utils::SELECTED)
+					applySurface( start_off_x + (x * PICTURE_OFFSET_X), start_off_y + (y * PICTURE_OFFSET_Y), unknown, screen );
 				//// Wypisz IP
 				message = boost::shared_ptr<SDL_Surface>(TTF_RenderText_Solid( font.get(), utils::iptos(boost::get<0>(activeHosts_[i])).c_str(), textColorBlack ), boost::bind(&SafeFreeSurface, _1) ) ;   
 				applySurface( start_off_x + (x * PICTURE_OFFSET_X) + active->w + 1, start_off_y + (y * PICTURE_OFFSET_Y), message, screen );
@@ -324,12 +337,14 @@ void CGViewer::stopCGViewer()
 	threadCGViewer_.join();
 }
 
-void CGViewer::switchView(const bool local_view)
+void CGViewer::switchView(const int local_view)
 {
 	localView_ = local_view;
+	if(localView_ > 2)
+		localView_ = 0;
 }
 
-void CGViewer::refreshCGViewerActiveHosts(std::map<utils::MacAdress,ActiveHost, utils::lessMAC>& m, bool local)
+void CGViewer::refreshCGViewerActiveHosts(std::map<utils::MacAdress,ActiveHost, utils::lessMAC>& m, int view)
 {
 	boost::unique_lock<boost::shared_mutex> write_lock(mutex_);
 
@@ -339,10 +354,12 @@ void CGViewer::refreshCGViewerActiveHosts(std::map<utils::MacAdress,ActiveHost, 
 	{
 		v.push_back(boost::make_tuple(it->second.ip, it->second.mac, it->second.ttl));
 	}
-	if(local)
+	if(view == utils::LOCAL)
 		activeHosts_ = v;
-	else
+	else if(view == utils::EXTERNAL)
 		externalHosts_ = v;
+	else
+		selectedHosts_ = v;
 }
 
 

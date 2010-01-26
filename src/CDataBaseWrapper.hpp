@@ -65,6 +65,8 @@ public:
 
 	void loadSpecificHosts(std::string net_addr);
 
+	void showHostHistory(std::string mac);
+
 	void startHandlingReceived();
 
 private:
@@ -89,8 +91,7 @@ private:
 	std::map<utils::MacAdress,ActiveHost, utils::lessMAC> activeHosts_;
 	///mapa hostow zewnetrznych
 	std::map<utils::MacAdress,ActiveHost, utils::lessMAC> externalHosts_;
-	///mapa hostow archiwalnych 
-	std::map<utils::MacAdress,ActiveHost, utils::lessMAC> selectedHosts_;
+
 
 	///do synchronizacji - zeby na raz kilku nie czytalo/zapisywali
 	boost::mutex mutex_;

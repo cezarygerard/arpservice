@@ -38,17 +38,21 @@ void CMainLoop::enterMainLoop()
 		//cout << endl;
 		if(token == "")
 			;
+		///wydruk na ekran
 		else if(token == "print" || token == "pr")
 		{
 			string alt;
 			data >> alt;
+			///wydruk klientow
 			if(alt == "clients" || alt == "cl")
 				CConnectionMgr::getInstance()->showConnections();
+			///wydruk czasu zycia hosta i odstepu miedzy wysylaniem ARP
 			else if(alt == "ttl"){
 				cout << "Okres rozsylania ARP SEND_PERIOD : " << utils::ARP_SEND_PERIOD << endl;
 				cout << "Okres zycia hosta TTL : " << utils::TTL << endl;
 			}
-			else if(alt == "sql"){
+			///wydruk adresow sieci z bazy
+			else if(alt == "netaddr" || alt == "net"){
 				CDataBaseWrapper::getInstance()->showNetAddresses();
 			}
 			else
@@ -56,19 +60,72 @@ void CMainLoop::enterMainLoop()
 				cerr << "Wprowadzono bledny parametr print, wprowadz ? w celu otrzymania listy komend" << endl;
 			}
 		}
+		///wyswietlenie monitora wizualnego
 		else if(token == "show" || token == "sh")
 		{
 			string alt;
 			data >> alt;
-		
+			///wyswietlenie sieci z klientow
 			if(alt == "external" || alt == "ex")
-			CGViewer::getInstance()->switchView(false);
-			
-			if(alt == "local" || alt == "lo")
-			CGViewer::getInstance()->switchView(true);
+				CGViewer::getInstance()->switchView(utils::EXTERNAL);
+			///wyswietlenie sieci lokalnej
+			else if(alt == "local" || alt == "lo")
+				CGViewer::getInstance()->switchView(utils::LOCAL);
+			///wyswietlenie sieci archiwalnej
+			else if(alt == "archival" || alt == "ar")
+				CGViewer::getInstance()->switchView(utils::SELECTED);
 
 			CGViewer::getInstance()->startCGViewer();
 			cout << "Wyswietlanie monitora sieci" << endl;
+		
+		}
+		/// ladowanie z SQL
+		else if(token == "load" || token == "lo")
+		{
+			string alt;
+			data >> alt;
+			///wyswietlenie historii klienta
+			if(alt == "?" || alt == "help")
+			{
+				cout << "[lo ho 'mac'], [load host 'mac'] w celu zaladowania historii hosta o danym MAC\n";
+				cout << "[lo net 'netaddr'], [load network 'netaddr'] w celu zaladowania stanu danej sieci z bazy\n";
+			}
+
+			else if(alt == "host" || alt == "ho")
+			{
+				string mac;
+				data >> mac;
+
+				if(mac.length() == 12)
+					CDataBaseWrapper::getInstance()->showHostHistory(mac);
+				else
+				{
+					cerr << "Podano mac adres o nieprawidlowej budowie\nprzyklad:\nnload host 000AE63EFDE1" << endl;
+				}
+
+			
+			}
+			///zaladowanie archiwalnej sieci lokalnej
+			else if(alt == "net" || alt == "network")
+			{
+				string netaddr;
+				data >> netaddr;
+
+				if(utils::checkIP(netaddr) == 4)
+				{
+					cout << "Pobieranie historii..." << endl;
+					CDataBaseWrapper::getInstance()->loadSpecificHosts(netaddr);
+					cout << "Siec zaladowana do podgladu" << endl;
+				}
+				else
+				{
+					cerr << "Podano adres sieci o nieprawidlowej budowie\nprzyklad:\nload network 192.168.1.0" << endl;
+				}
+			}
+			else
+			{
+				cerr << "Podano nieprawidlowy parametr" << endl;
+			}
 		
 		}
 		else if(token == "hide" || token == "hi")
@@ -81,15 +138,7 @@ void CMainLoop::enterMainLoop()
 			string ip;
 			data >> ip;
 
-			size_t found_pos = ip.find(".");
-			int count = 1;
-			// proste sprawdzenie adresu
-			while (found_pos != -1) {
-				found_pos = ip.find(".", found_pos + 1);
-				count++;
-			}
-
-			if(count == 4)
+			if(utils::checkIP(ip) == 4)
 			{
 				cout << "Dodawanie adresu..." << endl;
 				CConnectionMgr::getInstance()->addIPAddress(ip);
@@ -104,15 +153,7 @@ void CMainLoop::enterMainLoop()
 			string ip;
 			data >> ip;
 
-			size_t found_pos = ip.find(".");
-			int count = 1;
-			// proste sprawdzenie adresu
-			while (found_pos != -1) {
-				found_pos = ip.find(".", found_pos + 1);
-				count++;
-			}
-
-			if(count == 4)
+			if(utils::checkIP(ip) == 4)
 			{
 				cout << "Usuwanie adresu..." << endl;
 				CConnectionMgr::getInstance()->removeIPAddress(ip);
@@ -197,22 +238,27 @@ void CMainLoop::showHelp()
 	cout << "[?], [help] aby wyswietlic ten ekran\n";
 	cout << "[q], [quit] aby wyjsc\n";
 	cout << endl;
+	cout << "[pr ttl], [print ttl] aby wyswietlic wartosci parametrow TTL i SEND_PERIOD\n";
+	cout << "[set TTL 'ttl'] aby ustawic TTL\n";
+	cout << "[set SEND_PERIOD 'send_period'] aby ustawic okres rozsylania ARP\n";
+	cout << endl;
 	cout << "[at 'IP'], [attach 'IP'] w celu dodania host'a do grupy klientow\n";
 	cout << "[dt 'IP'], [detach 'IP'] w celu usuniecia host'a z grupy klientow\n";
 	cout << "[co], [connect] w celu otwarcia polaczen z grupa klientow\n";
 	cout << "[di], [disconnect] w celu zamkniecia polaczen z grupa klientow\n";
-	cout << endl;
 	cout << "[pr cl], [print clients] aby wyswietlic liste klientow\n";
-	cout << "[pr ttl], [print ttl] aby wyswietlic wartosci parametrow TTL i SEND_PERIOD\n";
-	cout << "[pr sql], [print sql] aby wyswietlic adresy sieci do ktorych naleza hosty z bazy\n";
+	cout << endl;
+	cout << "[lo ho 'mac'], [load host 'mac'] w celu zaladowania historii hosta o danym MAC\n";
+	cout << "[lo net 'netaddr'], [load network 'netaddr'] w celu zaladowania stanu danej sieci z bazy\n";
+	cout << "[pr net], [print netaddr] aby wyswietlic adresy sieci do ktorych naleza hosty z bazy\n";
+	
 	cout << endl;
 	cout << "[sh], [show] aby wyswietlic graficzny monitor sieci w obecnym trybie\n";
 	cout << "[sh lc], [show local] aby wyswietlic stan sieci w ktorej pracuje aplikacja\n";
 	cout << "[sh ex], [show external] aby wyswietlic stan sieci dolaczonych klientow\n";
+	cout << "[sh ar], [show archival] aby wyswietlic stan zaladowanej sieci archiwalnej\n";
 	cout << "[hi], [hide] aby ukryc graficzny monitor sieci\n";
 	cout << endl;
-	cout << "[set TTL 'ttl'] aby ustawic TTL\n";
-	cout << "[set SEND_PERIOD 'send_period'] aby ustawic okres rozsylania ARP\n";
 	
 
 	
