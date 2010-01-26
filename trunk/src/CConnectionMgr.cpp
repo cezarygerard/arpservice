@@ -291,10 +291,10 @@ HostsMapPtr CConnectionMgr::receiveInfo(TCPsocket csd_)
 							
 							catch (boost::archive::archive_exception e)
 							{
-								cout<<"CConnectionMgr::receiveInfo nie udalo sie odebrac informacji o hoscie "<<e.code<<endl;
+							//	cout<<"CConnectionMgr::receiveInfo nie udalo sie odebrac informacji o hoscie "<<e.code<<endl;
 							}
 							
-							cout<<"CConnectionMgr::receiveInfo "<<utils::iptos(ah->ip)<<endl;
+							//cout<<"CConnectionMgr::receiveInfo "<<utils::iptos(ah->ip)<<endl;
 							if(ah->start[0] != '0')
 							{
 								hostsMap->insert(pair<utils::MacAdress,ActiveHost>(ah->mac,*ah) );

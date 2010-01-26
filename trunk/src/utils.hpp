@@ -43,7 +43,7 @@ namespace utils
 	static int MAX_TTL_EXTERNAL = 3; // czas zycia hosta pobieranego od klienta
 	const int LISTENING_PERIOD = 10; //ms
 	const int CONNECTION_PERIOD = 60;//seconds
-	const int RECEIVE_INFO_PERIOD = 50;//ms
+	const int RECEIVE_INFO_PERIOD = 200;//ms
 
 	const int RECEIVER_SLEEP_PERIOD = 1; //ms
 	const int HANDLE_SLEEP_PERIOD = 1; //seconds
