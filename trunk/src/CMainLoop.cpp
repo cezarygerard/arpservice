@@ -26,8 +26,7 @@ void CMainLoop::enterMainLoop()
 	CDataBaseWrapper::getInstance()->startHandlingReceived();
 
 	string s;
-	getline(cin, s);
-	s.clear();
+	
 	cout << "*****\n*\n* Lan Monitor wita\n* Wprowadz komende po znaku zachety\n* Lista komend po wprowadzeniu ? lub help \n*\n*****" << endl;
 	boost::this_thread::sleep(boost::posix_time::millisec(200));
 	while(!quit_)	
