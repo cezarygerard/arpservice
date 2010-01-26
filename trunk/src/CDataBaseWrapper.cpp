@@ -250,7 +250,7 @@ void CDataBaseWrapper::showHostHistory(std::string mac, std::string start, std::
 
 	stringstream selectSql;
 
-	selectSql<<"select * from arprecord where mac ='"<<mac<<"' AND start BETWEEN '"<<start<< " 00:00:00' AND '"<<stop<<" 00:00:00' ORDER BY start ASC;";
+	selectSql<<"select * from arprecord where mac ='"<<mac<<"' AND start BETWEEN '"<<start<<"' AND '"<<stop<<"' ORDER BY start ASC;";
 	cout << selectSql.str();
 
 	cout << "\n\n****\n* Historia aktywnosci hosta o MAC: " << mac <<"\n*";
