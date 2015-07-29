@@ -1,0 +1,1 @@
+Application uses ARP protocol to scan trough whole LAN network and record host activity. It runs as MS Windows service and has some GUI available.
